@@ -1,0 +1,101 @@
+{
+  "model_name": "careerpath-adult-income",
+  "model_version": "adult-income-v1",
+  "dataset": "Census Income (Adult)",
+  "dataset_reference": "UCI ID 20; DOI 10.24432/C5GP7S; CC BY 4.0",
+  "features": [
+    "age",
+    "education",
+    "workclass",
+    "occupation",
+    "marital-status",
+    "hours-per-week"
+  ],
+  "excluded_features": {
+    "race": "sensitive attribute excluded from operational predictors",
+    "sex": "sensitive attribute excluded from operational predictors",
+    "fnlwgt": "survey weight, not a prospect attribute",
+    "relationship": "unnecessary household detail",
+    "native-country": "unnecessary origin attribute",
+    "capital-gain": "financial detail outside the form scope",
+    "capital-loss": "financial detail outside the form scope",
+    "education-num": "duplicate representation of education"
+  },
+  "sklearn_version": "1.9.1",
+  "python_version": "3.12.14",
+  "trained_at": "2026-09-15T22:34:18.450302+00:00",
+  "seed": 42,
+  "parameters": {
+    "classifier": "LogisticRegression",
+    "solver": "liblinear",
+    "max_iter": 1000,
+    "threshold": 0.5
+  },
+  "counts": {
+    "train_original": 32561,
+    "train_used": 32536,
+    "test": 16281,
+    "overlap_removed": 25
+  },
+  "cleaning": [
+    "trim whitespace",
+    "convert ? to missing",
+    "remove terminal dot from test labels",
+    "remove exact train rows also present in test"
+  ],
+  "data_sha256": {
+    "adult.data": "5b00264637dbfec36bdeaab5676b0b309ff9eb788d63554ca0a249491c86603d",
+    "adult.test": "a2a9044bc167a35b2361efbabec64e89d69ce82d9790d2980119aac5fd7e9c05"
+  },
+  "artifact_sha256": "cfc85186a943d1ec52b97a8c9ee4b675d948a69918ae958a6d72c222027bb716",
+  "metrics": {
+    "model": {
+      "accuracy": 0.8331797801117867,
+      "balanced_accuracy": 0.7312244262991268,
+      "precision_above_50k": 0.6878324468085106,
+      "recall_above_50k": 0.5379615184607385,
+      "f1_above_50k": 0.6037350452290633,
+      "roc_auc": 0.8825975676743194,
+      "brier_score": 0.1142367999105138,
+      "confusion_matrix": [
+        [
+          11496,
+          939
+        ],
+        [
+          1777,
+          2069
+        ]
+      ]
+    },
+    "baseline": {
+      "accuracy": 0.7637737239727289,
+      "balanced_accuracy": 0.5,
+      "precision_above_50k": 0.0,
+      "recall_above_50k": 0.0,
+      "f1_above_50k": 0.0,
+      "roc_auc": 0.5,
+      "brier_score": 0.23622627602727106,
+      "confusion_matrix": [
+        [
+          12435,
+          0
+        ],
+        [
+          3846,
+          0
+        ]
+      ]
+    }
+  },
+  "class_order": [
+    "<=50K",
+    ">50K"
+  ],
+  "limitations": [
+    "historical 1994 US Census income proxy, not a career outcome",
+    "excluded sensitive attributes do not eliminate proxy bias",
+    "unknown categories execute but have no learned category effect",
+    "not validated for automated decisions about people"
+  ]
+}

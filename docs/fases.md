@@ -161,6 +161,9 @@ grava o vídeo, confirma o cache e cria/envia `sr1` no prazo.
 
 - Fase 0: concluída e publicada em `origin/main` no commit `bcb58a5`.
 - Model Gate 1: atendido pelo usuário com SOL/HIGH e `CONTINUAR`.
-- Fase 1: concluída; resultado registrado em `docs/checkpoints.md`.
-- Próxima fase: Fase 2.
-- Treinamento, serviço e métricas: ainda não iniciados.
+- Fase 1: concluída e sincronizada com `origin/main`.
+- Fase 2: concluída; pipeline, metadata e métricas reais estão versionados.
+- Resultado do modelo no teste oficial: accuracy `0.8331797801` e ROC-AUC
+  `0.8825975677`; 8 testes automatizados passaram.
+- Próxima fase: Fase 3, serviço BentoML.
+- Serviço HTTP: ainda não iniciado.
