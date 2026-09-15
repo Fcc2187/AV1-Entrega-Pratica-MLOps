@@ -1,6 +1,9 @@
 import json
 import math
+import subprocess
+import sys
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 from starlette.testclient import TestClient
@@ -108,3 +111,55 @@ def test_invalid_example_is_rejected(client: TestClient) -> None:
     response = client.post("/predict", json=payload)
 
     assert response.status_code == 400
+
+
+def test_service_startup_fails_without_local_artifact(tmp_path: Path) -> None:
+    copied_service = tmp_path / "src" / "careerpath" / "service.py"
+    copied_service.parent.mkdir(parents=True)
+    copied_service.write_text(
+        (PROJECT_ROOT / "src" / "careerpath" / "service.py").read_text("utf-8"),
+        encoding="utf-8",
+    )
+    script = dedent(
+        f"""
+        import importlib.util
+        from unittest.mock import patch
+        import careerpath.train as training
+
+        with (
+            patch(
+                "urllib.request.urlopen",
+                side_effect=AssertionError("network fallback attempted"),
+            ),
+            patch.object(
+                training,
+                "train_and_save",
+                side_effect=AssertionError("training fallback attempted"),
+            ),
+            patch.object(
+                training,
+                "main",
+                side_effect=AssertionError("training fallback attempted"),
+            ),
+        ):
+            spec = importlib.util.spec_from_file_location(
+                "missing_artifact_service", {str(copied_service)!r}
+            )
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        """
+    )
+
+    result = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=10,
+    )
+
+    assert result.returncode != 0
+    assert "FileNotFoundError" in result.stderr
+    assert "metadata.json" in result.stderr
+    assert not (tmp_path / "data").exists()

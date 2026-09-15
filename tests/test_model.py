@@ -1,8 +1,19 @@
 import pandas as pd
 import pytest
+from numpy import array
 
 from careerpath.model import load_artifact, predict_income
 from careerpath.train import build_pipeline
+
+
+class FixedProbabilityPipeline:
+    classes_ = ["<=50K", ">50K"]
+
+    def __init__(self, probability: float) -> None:
+        self.probability = probability
+
+    def predict_proba(self, _features: pd.DataFrame):
+        return array([[1 - self.probability, self.probability]])
 
 
 def test_predict_income_maps_api_fields_and_returns_contract() -> None:
@@ -81,3 +92,29 @@ def test_predict_income_sends_null_categories_to_trained_imputers() -> None:
     assert null_result["probability_above_50k"] == pytest.approx(
         mode_result["probability_above_50k"]
     )
+
+
+@pytest.mark.parametrize(
+    ("probability", "expected_class"),
+    [(0.499, "<=50K"), (0.5, ">50K")],
+)
+def test_predict_income_uses_documented_threshold(
+    probability: float, expected_class: str
+) -> None:
+    profile = {
+        "age": 42,
+        "education": "Bachelors",
+        "workclass": "Private",
+        "occupation": "Sales",
+        "marital_status": "Never-married",
+        "hours_per_week": 40,
+    }
+
+    result = predict_income(
+        FixedProbabilityPipeline(probability),  # type: ignore[arg-type]
+        {"model_version": "test-v1"},
+        profile,
+    )
+
+    assert result["income_class_proxy"] == expected_class
+    assert result["probability_above_50k"] == probability

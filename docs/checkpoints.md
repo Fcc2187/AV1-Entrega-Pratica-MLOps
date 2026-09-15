@@ -228,3 +228,59 @@ rejeitada; categorias desconhecidas e os dois campos anuláveis continuam execut
 
 Fase 4 — ampliar os testes de contrato e robustez e automatizar o E2E real com
 reinício do serviço, mantendo pytest, Ruff e operação offline.
+
+## Fase 4 — testes e robustez
+
+Status: concluída em 15/09/2026.
+
+### O que foi feito
+
+- Confirmado o limite de classificação: probabilidade menor que `0,5` resulta em
+  `<=50K`, enquanto `0,5` já resulta em `>50K`.
+- Verificado que o startup falha com `FileNotFoundError` claro quando a metadata do
+  artefato local não existe, sem tentar baixar dados ou treinar um modelo.
+- Automatizado um E2E que executa o comando documentável do BentoML, aguarda o
+  health com limite de 30 segundos e chama o predict por HTTP real.
+- Executado um segundo ciclo na mesma porta para confirmar a inferência após um
+  reinício completo.
+- Isolado cada ciclo em seu próprio grupo de processos; o teste encerra a árvore
+  identificada pelo PID iniciado, usa timeouts e confirma que a porta foi liberada.
+- Mantidas as dependências e o código de produção inalterados.
+
+### Arquivos alterados
+
+- `tests/test_e2e.py`
+- `tests/test_model.py`
+- `tests/test_service.py`
+- `docs/checkpoints.md`
+- `docs/fases.md`
+
+### Comandos e resultados observados
+
+- `uv run --frozen pytest -q tests/test_e2e.py`: 1 teste passou em 14,79 s.
+- `uv run --frozen pytest -q`: 41 testes passaram em 24,36 s, incluindo dois
+  startups reais do serviço.
+- `uv run --frozen ruff check .`: `All checks passed!`.
+- `uv run --frozen python -m compileall -q src scripts tests`: exit code 0.
+
+### Resultados
+
+O contrato, os erros de entrada, o carregamento local, categorias desconhecidas,
+campos anuláveis, health e inferência já cobertos pelas fases anteriores agora são
+complementados por testes do threshold, do startup sem artefato e do ciclo HTTP
+real com reinício. O E2E usa espera por condição em vez de pausa fixa.
+
+### Pendências e riscos conhecidos
+
+- O teste escolhe uma porta local livre antes do startup; permanece a pequena
+  corrida inerente entre liberar a reserva e o BentoML ocupar a porta. A CI deve
+  executar a suíte em ambiente isolado para evitar colisão com serviço compatível.
+- O encerramento da árvore usa grupos de processo no Windows e no POSIX; a futura
+  CI da Fase 5 validará também o caminho Linux.
+- As limitações do modelo e os avisos externos fixados continuam os mesmos dos
+  checkpoints das Fases 2 e 3.
+
+### Próxima fase
+
+Fase 5 — adicionar Dockerfile, comando único e GitHub Actions, mantendo instalação
+frozen, Ruff, pytest e validação honesta do Docker quando o runtime estiver disponível.
