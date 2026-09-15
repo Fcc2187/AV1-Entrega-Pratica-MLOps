@@ -50,3 +50,34 @@ def test_load_artifact_rejects_missing_files(tmp_path) -> None:
         load_artifact(missing_model, missing_metadata)
 
     assert error.value.filename == str(missing_metadata)
+
+
+def test_predict_income_sends_null_categories_to_trained_imputers() -> None:
+    features = pd.DataFrame(
+        {
+            "age": [22, 28, 35, 44, 52, 61],
+            "education": ["HS-grad", "Bachelors", "Masters"] * 2,
+            "workclass": ["Private"] * 4 + ["State-gov", "Self-emp"],
+            "occupation": ["Sales"] * 4 + ["Adm-clerical", "Prof-specialty"],
+            "marital-status": ["Never-married"] * 3 + ["Married-civ-spouse"] * 3,
+            "hours-per-week": [20, 35, 40, 45, 50, 60],
+        }
+    )
+    target = pd.Series(["<=50K"] * 3 + [">50K"] * 3)
+    pipeline = build_pipeline().fit(features, target)
+    profile = {
+        "age": 42,
+        "education": "Bachelors",
+        "workclass": None,
+        "occupation": None,
+        "marital_status": "Never-married",
+        "hours_per_week": 40,
+    }
+
+    null_result = predict_income(pipeline, {"model_version": "test-v1"}, profile)
+    profile.update(workclass="Private", occupation="Sales")
+    mode_result = predict_income(pipeline, {"model_version": "test-v1"}, profile)
+
+    assert null_result["probability_above_50k"] == pytest.approx(
+        mode_result["probability_above_50k"]
+    )

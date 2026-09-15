@@ -145,3 +145,86 @@ do unpickle; inferência e startup futuro não precisam de rede nem de treinamen
 
 Fase 3 — carregar o artefato local no serviço BentoML e expor `POST /predict` e
 `GET /health`, sem download ou treinamento como fallback.
+
+## Fase 3 — serviço BentoML
+
+Status: concluída em 15/09/2026.
+
+### O que foi feito
+
+- Definido contrato Pydantic estrito para os seis campos de entrada e três de saída.
+- Exposto `POST /predict` como API BentoML com objeto JSON na raiz.
+- Montado `GET /health` por Starlette no mesmo serviço.
+- Carregado o pipeline local uma vez por processo, com validações de versão e hash
+  herdadas da Fase 2 e sem fallback de download ou treinamento.
+- Corrigido o tratamento de `null` para que `workclass` e `occupation` cheguem aos
+  imputadores treinados como valores ausentes.
+- Criados três exemplos sintéticos válidos e um inválido, todos exercitados por HTTP.
+- Desabilitada a telemetria local do BentoML na configuração de exemplo.
+
+### Arquivos alterados
+
+- `.env.example`
+- `pyproject.toml`
+- `src/careerpath/schema.py`
+- `src/careerpath/service.py`
+- `src/careerpath/model.py`
+- `examples/case-1.json`
+- `examples/case-2.json`
+- `examples/case-3.json`
+- `examples/invalid.json`
+- `tests/test_schema.py`
+- `tests/test_service.py`
+- `tests/test_model.py`
+- `docs/checkpoints.md`
+- `docs/fases.md`
+
+### Contrato HTTP observado
+
+- Comando: `uv run --frozen bentoml serve careerpath.service:CareerPathService
+  --host 127.0.0.1 --port 3000 --do-not-track`.
+- `GET /health`: HTTP 200, `{"status":"ok","model_version":"adult-income-v1"}`.
+- `case-1.json`: HTTP 200, classe `<=50K`, probabilidade `0.13588024571339077`.
+- `case-2.json`: HTTP 200, classe `>50K`, probabilidade `0.5256289902834581`.
+- `case-3.json`: HTTP 200, classe `<=50K`, probabilidade `0.01841773201019456`.
+- `invalid.json`: HTTP 400 com detalhe indicando `age >= 17`.
+- BentoML 1.4.39 converte `ValidationError` em HTTP 400; portanto, o 422 da Fase 0
+  era apenas uma proposta e foi substituído pelo comportamento nativo verificado.
+- O processo iniciado para o smoke test foi encerrado explicitamente após as chamadas.
+
+### Comandos e resultados observados
+
+- Ciclos TDD: falhas esperadas por módulos e exemplos ausentes, seguidas por estados
+  verdes de 17 testes de schema, 3 de modelo e 11 de serviço no escopo de cada ciclo.
+- `uv run --frozen pytest -q`: 37 testes passaram em 3,83 s.
+- `uv run --frozen ruff check .`: `All checks passed!`.
+- `uv run --frozen python -m compileall -q src scripts tests`: exit code 0.
+- `git diff --check`: exit code 0.
+
+### Compatibilidade de avisos
+
+Starlette 1.6.0 avisa que seu `TestClient` migrará de `httpx` para `httpx2`;
+BentoML 1.4.39 ainda usa APIs descontinuadas pelo Pydantic 2.13.5 e padrões antigos
+do `pathspec`. O pytest trata avisos como erro e ignora somente essas mensagens,
+categorias e módulos externos conhecidos. Nenhum pacote foi adicionado ou alterado.
+
+### Resultados
+
+O serviço inicia pelo CLI fixado, responde ao health e executa inferência local com
+o artefato versionado. Entrada inválida, extra, malformada ou com tipo incorreto é
+rejeitada; categorias desconhecidas e os dois campos anuláveis continuam executando.
+
+### Pendências e riscos conhecidos
+
+- O BentoML registra uma stack trace em nível ERROR para validação inválida, embora
+  devolva o HTTP 400 esperado; é comportamento nativo da versão fixada.
+- A Fase 4 ainda deve automatizar o E2E com processo real, espera limitada, reinício
+  e encerramento somente do processo iniciado pelo teste.
+- Ausência ou corrupção do artefato impede o startup de propósito; não há 503 quando
+  o processo não consegue abrir a porta.
+- O modelo mantém as limitações de uso e viés registradas no checkpoint da Fase 2.
+
+### Próxima fase
+
+Fase 4 — ampliar os testes de contrato e robustez e automatizar o E2E real com
+reinício do serviço, mantendo pytest, Ruff e operação offline.

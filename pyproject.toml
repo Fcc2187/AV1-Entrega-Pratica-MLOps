@@ -29,6 +29,14 @@ packages = ["src/careerpath"]
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
+filterwarnings = [
+    "error",
+    "ignore:Using `httpx` with `starlette.testclient` is deprecated.*:starlette.exceptions.StarletteDeprecationWarning",
+    "ignore:The anyio.abc.BlockingPortal alias is deprecated.*:DeprecationWarning:starlette.testclient",
+    "ignore:GitWildMatchPattern .* is deprecated.*:DeprecationWarning:pathspec.(pathspec|pattern)",
+    "ignore:The `__get_pydantic_core_schema__` method .* is deprecated.*:pydantic.warnings.PydanticDeprecatedSince211:_bentoml_sdk.io_models",
+    "ignore:Accessing the 'model_fields' attribute .* is deprecated.*:pydantic.warnings.PydanticDeprecatedSince211:_bentoml_impl.server.app",
+]
 
 [tool.ruff]
 line-length = 100

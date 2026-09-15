@@ -165,5 +165,6 @@ grava o vídeo, confirma o cache e cria/envia `sr1` no prazo.
 - Fase 2: concluída; pipeline, metadata e métricas reais estão versionados.
 - Resultado do modelo no teste oficial: accuracy `0.8331797801` e ROC-AUC
   `0.8825975677`; 8 testes automatizados passaram.
-- Próxima fase: Fase 3, serviço BentoML.
-- Serviço HTTP: ainda não iniciado.
+- Fase 3: concluída; `POST /predict`, `GET /health` e quatro exemplos executáveis.
+- Verificação atual: 37 testes passaram e Ruff não encontrou problemas.
+- Próxima fase: Fase 4, testes de robustez e E2E com reinício real.

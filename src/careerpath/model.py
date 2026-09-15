@@ -40,8 +40,16 @@ def predict_income(
             {
                 "age": profile["age"],
                 "education": profile["education"],
-                "workclass": profile["workclass"],
-                "occupation": profile["occupation"],
+                "workclass": (
+                    profile["workclass"]
+                    if profile["workclass"] is not None
+                    else float("nan")
+                ),
+                "occupation": (
+                    profile["occupation"]
+                    if profile["occupation"] is not None
+                    else float("nan")
+                ),
                 "marital-status": profile["marital_status"],
                 "hours-per-week": profile["hours_per_week"],
             }
