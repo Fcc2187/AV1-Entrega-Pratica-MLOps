@@ -159,7 +159,8 @@ grava o vídeo, confirma o cache e cria/envia `sr1` no prazo.
 
 ## Estado atual
 
-- Fase 0: concluída.
-- Gate atual: Model Gate 1 atendido pelo usuário com SOL/HIGH e `CONTINUAR`.
-- Próxima fase: Fase 1.
-- Implementação, treinamento, testes e métricas: ainda não iniciados.
+- Fase 0: concluída e publicada em `origin/main` no commit `bcb58a5`.
+- Model Gate 1: atendido pelo usuário com SOL/HIGH e `CONTINUAR`.
+- Fase 1: concluída; resultado registrado em `docs/checkpoints.md`.
+- Próxima fase: Fase 2.
+- Treinamento, serviço e métricas: ainda não iniciados.
