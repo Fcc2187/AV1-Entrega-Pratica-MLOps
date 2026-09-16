@@ -170,4 +170,7 @@ grava o vídeo, confirma o cache e cria/envia `sr1` no prazo.
 - Fase 5: concluída; Docker validado localmente, justfile e CI criados.
 - Verificação atual: 41 testes passaram, Ruff não encontrou problemas e o health
   respondeu a partir do container.
-- Model Gate 2: trocar para GPT-5.6 Terra em MEDIUM/HIGH e responder `CONTINUAR`.
+- Model Gate 2: atendido pelo usuário com `CONTINUAR`.
+- Fase 6: concluída; README reproduzível, contrato escrito e caminhos local e
+  Docker validados com comandos reais.
+- Próxima etapa: Fase 7 — evidências e apresentação.

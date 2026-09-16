@@ -345,3 +345,60 @@ executarão pela primeira vez após o push deste checkpoint.
 
 Model Gate 2 — trocar para GPT-5.6 Terra com esforço MEDIUM ou HIGH e responder
 `CONTINUAR` antes da Fase 6.
+
+## Fase 6 — README reproduzível
+
+Status: concluída em 16/09/2026.
+
+### O que foi feito
+
+- Substituído o README mínimo por instruções de clone, ambiente Python 3.12,
+  instalação congelada, startup, health, contrato HTTP e primeira predição.
+- Documentados exemplos `curl.exe` para PowerShell e `curl` para Linux/macOS,
+  incluindo os três casos válidos e a validação HTTP 400 do caso inválido.
+- Incluídos o objetivo e uso responsável do proxy, dados, métricas reais,
+  limitações, qualidade, Docker, CI, troubleshooting, licença, uso de IA,
+  apresentação e o comando manual da tag final.
+- Mantido o `just` como atalho opcional: o caminho principal não exige uma
+  ferramenta global adicional.
+
+### Arquivos alterados
+
+- `README.md`
+- `.env.example`
+- `docs/checkpoints.md`
+- `docs/fases.md`
+
+### Comandos e resultados observados
+
+- `uv run --frozen bentoml serve careerpath.service:CareerPathService --host
+  127.0.0.1 --port 3000 --do-not-track`: health ficou disponível em cerca de
+  6,4 s, com `{"status":"ok","model_version":"adult-income-v1"}`.
+- Os três `curl.exe` documentados para `/predict` retornaram HTTP 200; as
+  probabilidades observadas foram `0.13588024571339077`, `0.5256289902834581`
+  e `0.01841773201019456`.
+- O exemplo `examples/invalid.json` retornou HTTP 400.
+- O segundo terminal entra explicitamente no diretório do clone antes dos curls;
+  `.env.example` mantém somente o nome da variável, sem valor.
+- `docker build --tag careerpath-mlops:local .`: imagem construída com sucesso.
+- Container iniciado com a imagem e porta `3000` publicada: health retornou 200
+  e o processo executou como `appuser`.
+
+### Resultados
+
+Uma pessoa com Git, Python 3.12 e uv consegue ir de clone à primeira previsão
+com comandos copiados do README. O contrato está escrito fora do Swagger, o
+artefato local evita treino ou download na inferência e Docker oferece o mesmo
+caminho de demonstração quando disponível.
+
+### Pendências e riscos conhecidos
+
+- `just` continua opcional e não foi instalado nesta máquina; os comandos base
+  do README foram executados diretamente.
+- A tag `sr1` e o vídeo backup permanecem para o momento de entrega, conforme o
+  enunciado; não devem ser antecipados.
+
+### Próxima fase
+
+Fase 7 — registrar evidências persistentes e preparar o roteiro de apresentação
+e o vídeo backup antes do Model Gate 3.
