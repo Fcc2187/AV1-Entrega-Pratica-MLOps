@@ -167,5 +167,7 @@ grava o vídeo, confirma o cache e cria/envia `sr1` no prazo.
   `0.8825975677`; 8 testes automatizados passaram.
 - Fase 3: concluída; `POST /predict`, `GET /health` e quatro exemplos executáveis.
 - Fase 4: concluída; threshold, startup sem artefato e E2E com reinício real cobertos.
-- Verificação atual: 41 testes passaram e Ruff não encontrou problemas.
-- Próxima fase: Fase 5, Dockerfile, comando único e CI.
+- Fase 5: concluída; Docker validado localmente, justfile e CI criados.
+- Verificação atual: 41 testes passaram, Ruff não encontrou problemas e o health
+  respondeu a partir do container.
+- Model Gate 2: trocar para GPT-5.6 Terra em MEDIUM/HIGH e responder `CONTINUAR`.

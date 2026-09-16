@@ -284,3 +284,64 @@ real com reinício. O E2E usa espera por condição em vez de pausa fixa.
 
 Fase 5 — adicionar Dockerfile, comando único e GitHub Actions, mantendo instalação
 frozen, Ruff, pytest e validação honesta do Docker quando o runtime estiver disponível.
+
+## Fase 5 — diferenciais técnicos
+
+Status: concluída em 16/09/2026.
+
+### O que foi feito
+
+- Criado `Dockerfile` para Python 3.12 e uv `0.12.5` fixados por digest,
+  instalação a partir do `uv.lock` congelado, código-fonte, artefato local do
+  modelo e usuário sem privilégios.
+- Criado `.dockerignore` para excluir estado local, cache, dados brutos e segredos
+  do contexto de build.
+- Criado `justfile` com receitas para sync, serviço, lint, testes, check, demo E2E
+  e ciclo manual do Docker.
+- Criada CI para push na `main` e pull requests, com permissões mínimas de leitura,
+  actions fixadas por SHA, uv fixado, instalação frozen, Ruff e pytest.
+- Validado o container com build real e `GET /health` por HTTP local; o container
+  temporário foi removido ao final do smoke test.
+
+### Arquivos alterados
+
+- `Dockerfile`
+- `.dockerignore`
+- `justfile`
+- `.github/workflows/ci.yml`
+- `docs/checkpoints.md`
+- `docs/fases.md`
+
+### Comandos e resultados observados
+
+- `uv sync --frozen --python 3.12`: 81 pacotes conferidos.
+- `uv run --frozen ruff check .`: `All checks passed!`.
+- Parser YAML local: `ci yaml: ok`.
+- `uv run --frozen pytest -q`: 41 testes passaram em 48,42 s.
+- `uv run --frozen python -m compileall -q src scripts tests`: exit code 0.
+- `docker build --tag careerpath-mlops:local .`: imagem construída com sucesso.
+- Smoke test offline do container: UID `10001` e `GET /health` interno retornou
+  `{"status":"ok","model_version":"adult-income-v1"}`.
+
+### Resultados
+
+O projeto possui caminhos reproduzíveis para qualidade e operação local: o Docker
+inclui runtime, pacote, modelo local e ferramentas mínimas de execução, sem
+dependências de desenvolvimento; o justfile reúne os comandos reais; e a CI
+reproduz instalação congelada, lint e testes em Linux. As actions da CI ainda
+executarão pela primeira vez após o push deste checkpoint.
+
+### Pendências e riscos conhecidos
+
+- O executável `just` não está instalado neste computador, portanto as receitas
+  foram criadas mas ainda não foram executadas localmente. Nenhuma dependência
+  global foi adicionada só para esse teste.
+- A imagem deve ser reconstruída sempre que código, dependências ou artefato do
+  modelo mudarem.
+- A CI Linux e o justfile serão verificados novamente nas fases de documentação e
+  auditoria, com os comandos publicados no README.
+
+### Próxima fase
+
+Model Gate 2 — trocar para GPT-5.6 Terra com esforço MEDIUM ou HIGH e responder
+`CONTINUAR` antes da Fase 6.
