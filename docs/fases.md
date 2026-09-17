@@ -173,4 +173,8 @@ grava o vídeo, confirma o cache e cria/envia `sr1` no prazo.
 - Model Gate 2: atendido pelo usuário com `CONTINUAR`.
 - Fase 6: concluída; README reproduzível, contrato escrito e caminhos local e
   Docker validados com comandos reais.
-- Próxima etapa: Fase 7 — evidências e apresentação.
+- Fase 7: concluída; evidências locais, roteiro de apresentação de 15 minutos e
+  roteiro de vídeo backup foram registrados. Nesta execução, 41 testes passaram,
+  Ruff ficou limpo e o daemon Docker estava indisponível para nova validação.
+- Próxima etapa: Model Gate 3 — trocar para GPT-6 Astra com esforço MAX e responder
+  `CONTINUAR` antes da auditoria read-only da Fase 8.

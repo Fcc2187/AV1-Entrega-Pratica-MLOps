@@ -402,3 +402,68 @@ caminho de demonstração quando disponível.
 
 Fase 7 — registrar evidências persistentes e preparar o roteiro de apresentação
 e o vídeo backup antes do Model Gate 3.
+
+## Fase 7 — evidências e apresentação
+
+Status: concluída em 17/09/2026.
+
+### O que foi feito
+
+- Reexecutada a instalação frozen com uv 0.12.5 e Python 3.12.10.
+- Iniciado o serviço local e registrados startup, health, três predições e o erro
+  de validação usando os quatro JSONs sintéticos versionados.
+- Reexecutados pytest e Ruff, incluindo o E2E com duas inicializações reais.
+- Diagnosticado o Docker sem tentar build ou run: cliente instalado, daemon local
+  indisponível nesta máquina.
+- Criadas evidências persistentes com contexto, comandos, códigos de saída e
+  resultados observados.
+- Criado o roteiro de apresentação com os quatro blocos obrigatórios totalizando
+  15 minutos, perguntas individuais e checklist de ensaio.
+- Criado o roteiro de aproximadamente dois minutos para o vídeo backup.
+
+### Arquivos alterados
+
+- `docs/evidence/README.md`
+- `docs/evidence/2026-09-17-environment-and-installation.md`
+- `docs/evidence/2026-09-17-http.md`
+- `docs/evidence/2026-09-17-quality-and-docker.md`
+- `docs/presentation-outline.md`
+- `docs/demo-video-script.md`
+- `docs/checkpoints.md`
+- `docs/fases.md`
+
+### Comandos e resultados observados
+
+- `uv sync --frozen --python 3.12`, chamado pelo uv temporário 0.12.5: código 0;
+  ambiente Python 3.12.10 criado e 81 pacotes preparados em 11,86 s.
+- Startup local com `BENTOML_HOME=.bentoml` devido à restrição do sandbox: serviço
+  inicializado em `127.0.0.1:3000` com o modelo `adult-income-v1`.
+- `GET /health`: HTTP 200 com `status=ok`.
+- `case-1.json`, `case-2.json` e `case-3.json`: HTTP 200 com probabilidades reais
+  `0.13588024571339077`, `0.5256289902834581` e `0.01841773201019456`.
+- `invalid.json`: HTTP 400 indicando a regra `age >= 17`.
+- `pytest -q`: 41 testes passaram em 18,97 s após disponibilizar uv e taskkill no
+  PATH limitado do ambiente de execução.
+- `ruff check .`: `All checks passed!`.
+- `docker info`: código 1; cliente 29.4.3 presente e daemon `desktop-linux`
+  indisponível. Build e run não foram repetidos nesta fase.
+
+### Resultados
+
+As evidências cobrem ambiente, instalação, startup, health, três predições, erro,
+pytest, Ruff e o estado real do Docker. A apresentação segue 2 + 3 + 4 + 6 minutos
+e o vídeo backup possui roteiro próximo de dois minutos. Nenhum dado pessoal real,
+métrica inventada ou participante fictício foi adicionado.
+
+### Pendências e riscos conhecidos
+
+- A equipe ainda deve preencher os responsáveis por cada bloco, ensaiar e gravar
+  o vídeo; essas ações humanas não podem ser concluídas pelo repositório.
+- O Docker deve ser revalidado quando o daemon estiver disponível. A configuração
+  permanece a mesma que foi validada nas Fases 5 e 6.
+- A equipe deve revisar o commit final e criar/enviar a tag `sr1` somente no prazo.
+
+### Próxima fase
+
+Model Gate 3 — trocar manualmente para GPT-6 Astra com esforço MAX e responder
+`CONTINUAR`. A Fase 8 começa read-only e audita toda a entrega contra a rubrica.
