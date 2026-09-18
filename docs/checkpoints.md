@@ -467,3 +467,71 @@ métrica inventada ou participante fictício foi adicionado.
 
 Model Gate 3 — trocar manualmente para GPT-6 Astra com esforço MAX e responder
 `CONTINUAR`. A Fase 8 começa read-only e audita toda a entrega contra a rubrica.
+
+## Fase 8 — auditoria final independente
+
+Status: concluída em 18/09/2026.
+
+### Resultado da auditoria
+
+- Os 39 arquivos rastreados, o PDF, o artefato, o lockfile, o container, o CI,
+  os exemplos, os testes e as evidências foram comparados com a rubrica.
+- Um clone público limpo reproduziu instalação, lint, testes e respostas HTTP.
+- O repositório foi confirmado como público e o workflow `Quality` do commit
+  `ee6cebf363b8d785d073c3456edecba701368a25` estava concluído com sucesso.
+- Nenhum P0 ou P1 técnico foi encontrado.
+- A auditoria de segurança foi concluída com um achado baixo/P2: a receita Docker
+  publica `3000:3000` sem restringir o IP do host. O caminho nativo continua em
+  `127.0.0.1`.
+- Outros acabamentos P2 observados foram a conversão CRLF em clones Windows sem
+  `.gitattributes` e caminhos locais preservados nas evidências históricas.
+- Nenhuma credencial, chave privada, token preenchido, registro real de prospect ou
+  métrica inventada foi encontrado.
+
+Os responsáveis pela apresentação, o ensaio e o vídeo são ações humanas já
+previstas desde a Fase 0 e não foram tratados como defeitos do repositório.
+
+## Fase 9 — correções da auditoria
+
+Status: não aplicável.
+
+A Fase 9 existe apenas quando a Fase 8 encontra P0/P1. Como a auditoria encontrou
+somente itens P2 de acabamento, nenhum código ou configuração foi alterado nesta
+fase. O vídeo permaneceu intencionalmente para a preparação final da equipe.
+
+## Fase 10 — verificação final
+
+Status: concluída em 18/09/2026 com **READY técnico**.
+
+### Execução
+
+- GPT-5.6 Sol/HIGH foi usado por decisão do usuário em razão do limite de consumo
+  do GPT-6 Astra; o checklist completo da fase foi mantido.
+- Clone anônimo da `main` pública realizado em diretório temporário, no commit
+  `ee6cebf363b8d785d073c3456edecba701368a25`.
+- `uv sync --frozen --python 3.12`: código 0, Python 3.12.10 e 81 pacotes.
+- `uv lock --check --offline`: código 0.
+- `ruff check .`: `All checks passed!`.
+- `pytest -q`: 41 testes passaram em 60,93 s.
+- E2E com `UV_OFFLINE=1` e `--no-sync`: 1 teste passou em 15,87 s, incluindo
+  inicialização, predição, encerramento e novo ciclo.
+- Health e os três perfis válidos retornaram HTTP 200; o exemplo inválido retornou
+  HTTP 400 pela regra `age >= 17`.
+- Hash do pickle e versão do scikit-learn correspondem aos metadados.
+- Repositório público e CI `Quality` confirmados no mesmo commit.
+- Busca por formatos de segredo não encontrou ocorrências; `.env.example` continua
+  sem valores.
+- Docker não foi repetido porque o daemon permanece indisponível; a limitação foi
+  preservada sem substituir a validação histórica das Fases 5 e 6.
+
+A evidência completa está em
+`docs/evidence/2026-09-18-final-verification.md`.
+
+### Ações humanas antes da entrega
+
+- revisar o diff e o commit final;
+- distribuir as falas e ensaiar a apresentação;
+- gravar e guardar o vídeo backup;
+- confirmar ambiente, cache e porta 3000 antes da apresentação;
+- submeter o link público;
+- criar e enviar a tag `sr1` somente no prazo definido pelo professor.
