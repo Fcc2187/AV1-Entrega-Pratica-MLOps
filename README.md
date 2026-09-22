@@ -98,6 +98,28 @@ fora do intervalo recebem HTTP 400. `workclass` e `occupation` podem ser `null`;
 categorias desconhecidas executam pelo `OneHotEncoder(handle_unknown="ignore")`,
 mas não possuem efeito aprendido próprio.
 
+### Valores possíveis das variáveis categóricas
+
+Os campos categóricos do dataset Adult usados pelo modelo seguem, em geral, estes
+valores de referência. A API aceita também categorias novas em execução, mas elas
+não têm efeito aprendido próprio e são apenas ignoradas pelo encoder:
+
+- `workclass`: `Private`, `Self-emp-not-inc`, `Self-emp-inc`, `Federal-gov`,
+  `Local-gov`, `State-gov`, `Without-pay`, `Never-worked`
+- `education`: `Bachelors`, `Some-college`, `11th`, `HS-grad`, `Prof-school`,
+  `Assoc-acdm`, `Assoc-voc`, `9th`, `7th-8th`, `12th`, `Masters`, `1st-4th`,
+  `10th`, `Doctorate`, `5th-6th`, `Preschool`
+- `marital_status`: `Married-civ-spouse`, `Divorced`, `Never-married`,
+  `Separated`, `Widowed`, `Married-spouse-absent`, `Married-AF-spouse`
+- `occupation`: `Tech-support`, `Craft-repair`, `Other-service`, `Sales`,
+  `Exec-managerial`, `Prof-specialty`, `Handlers-cleaners`, `Machine-op-inspct`,
+  `Adm-clerical`, `Farming-fishing`, `Transport-moving`, `Priv-house-serv`,
+  `Protective-serv`, `Armed-Forces`
+
+Exemplo de categoria nova aceita em runtime: `Gig-platform` em `workclass` ou
+`Data-scientist` em `occupation`. Essa categoria não foi vista no treino, mas o
+modelo continua funcionando sem quebrar a requisição.
+
 Resposta de sucesso:
 
 ```json
