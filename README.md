@@ -88,21 +88,20 @@ Envie um objeto JSON na raiz com estes campos:
 | --- | --- | --- |
 | `age` | inteiro | de 17 a 100 |
 | `education` | texto | obrigatório, 1 a 80 caracteres |
-| `workclass` | texto ou `null` | obrigatório; aceita categoria nova |
-| `occupation` | texto ou `null` | obrigatório; aceita categoria nova |
+| `workclass` | texto ou `null` | obrigatório; opção da lista abaixo |
+| `occupation` | texto ou `null` | obrigatório; opção da lista abaixo |
 | `marital_status` | texto | obrigatório, 1 a 80 caracteres |
 | `hours_per_week` | inteiro | de 1 a 99 |
 
 Campos extras, tipos incorretos, `?` como categoria, JSON malformado e valores
-fora do intervalo recebem HTTP 400. `workclass` e `occupation` podem ser `null`;
-categorias desconhecidas executam pelo `OneHotEncoder(handle_unknown="ignore")`,
-mas não possuem efeito aprendido próprio.
+fora do intervalo recebem HTTP 400. `workclass` e `occupation` podem ser `null`.
+Categorias fora da lista abaixo
+recebem HTTP 400, acompanhadas da lista de opções válidas para o campo.
 
 ### Valores possíveis das variáveis categóricas
 
-Os campos categóricos do dataset Adult usados pelo modelo seguem, em geral, estes
-valores de referência. A API aceita também categorias novas em execução, mas elas
-não têm efeito aprendido próprio e são apenas ignoradas pelo encoder:
+Os campos categóricos do dataset Adult usados pelo modelo aceitam apenas estes
+valores:
 
 - `workclass`: `Private`, `Self-emp-not-inc`, `Self-emp-inc`, `Federal-gov`,
   `Local-gov`, `State-gov`, `Without-pay`, `Never-worked`
@@ -115,10 +114,6 @@ não têm efeito aprendido próprio e são apenas ignoradas pelo encoder:
   `Exec-managerial`, `Prof-specialty`, `Handlers-cleaners`, `Machine-op-inspct`,
   `Adm-clerical`, `Farming-fishing`, `Transport-moving`, `Priv-house-serv`,
   `Protective-serv`, `Armed-Forces`
-
-Exemplo de categoria nova aceita em runtime: `Gig-platform` em `workclass` ou
-`Data-scientist` em `occupation`. Essa categoria não foi vista no treino, mas o
-modelo continua funcionando sem quebrar a requisição.
 
 Resposta de sucesso:
 
