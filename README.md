@@ -8,6 +8,17 @@ classe histórica `>50K`, a classe proxy e a versão do modelo.
 > nem potencial de carreira. O rótulo é um proxy histórico do Censo dos EUA de
 > 1994 e deve apoiar revisão humana, nunca decisão automatizada sobre pessoas.
 
+
+## Equipe 
+
+- Caio Lima Bezerra
+- Felipe Caminha
+- João Marcelo
+- Lucas Sukar
+- Miguel Becker
+- Luiz Arruda
+
+
 ## Índice
 
 - [Pré-requisitos](#pré-requisitos)
