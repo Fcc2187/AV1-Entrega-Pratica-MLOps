@@ -23,6 +23,7 @@ classe histórica `>50K`, a classe proxy e a versão do modelo.
 
 - [Pré-requisitos](#pré-requisitos)
 - [Objetivo e uso responsável](#objetivo-e-uso-responsável)
+- [Fluxograma da lógica](#fluxograma-da-lógica)
 - [Primeira execução](#primeira-execução)
 - [Contrato HTTP e exemplos](#contrato-http-e-exemplos)
 - [Qualidade, Docker e CI](#qualidade-docker-e-ci)
@@ -53,6 +54,13 @@ noturno forma uma fila no CRM até 08:00, Growth revisa sua ordem e o consultor
 decide se fará o contato. A probabilidade desta API é só um sinal auxiliar: não
 define preço, benefício, elegibilidade ou contato automático, e não há integração
 com processo real nem uso operacional de dados pessoais.
+
+## Fluxograma da lógica
+
+O diagrama abaixo resume o ciclo offline de treinamento e versionamento do modelo,
+o carregamento seguro do artefato e o fluxo de validação e inferência da API:
+
+![Fluxograma da lógica do sistema](docs/fluxograma-sistema.svg)
 
 ## Primeira execução
 
