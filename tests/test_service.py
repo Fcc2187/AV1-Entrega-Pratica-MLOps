@@ -8,8 +8,6 @@ from textwrap import dedent
 import pytest
 from starlette.testclient import TestClient
 
-from careerpath.service import CareerPathService
-
 PROJECT_ROOT = Path(__file__).parents[1]
 
 
@@ -27,9 +25,11 @@ def valid_profile(**changes: object) -> dict[str, object]:
 
 
 @pytest.fixture(scope="module")
-def client():
-    with TestClient(CareerPathService.to_asgi()) as test_client:
-        yield test_client
+def client(service_app, tmp_path_factory):
+    with pytest.MonkeyPatch.context() as env:
+        env.setenv("CAREERPATH_LOG_PATH", str(tmp_path_factory.mktemp("service") / "events.jsonl"))
+        with TestClient(service_app) as test_client:
+            yield test_client
 
 
 def test_health_reports_loaded_model(client: TestClient) -> None:
@@ -78,9 +78,7 @@ def test_predict_accepts_unknown_and_nullable_categories(client: TestClient) -> 
         valid_profile(extra="value"),
     ],
 )
-def test_predict_rejects_invalid_profiles(
-    client: TestClient, payload: dict[str, object]
-) -> None:
+def test_predict_rejects_invalid_profiles(client: TestClient, payload: dict[str, object]) -> None:
     response = client.post("/predict", json=payload)
 
     assert response.status_code == 400

@@ -190,6 +190,71 @@ Estado: concluída, após retomada solicitada pelo usuário depois de reiniciar 
 - Docker, CI, carga e README continuam nas fases previstas. Nenhuma dessas fases
   foi antecipada; não houve commit, push ou merge pelo agente.
 
+## Fase 2 — logging de inferência
+
+Data: 10/11/2026.
+Estado: concluída. Base: `b262b18`, branch `av2`; árvore limpa ao iniciar.
+
+### O que foi feito
+
+- Criado `src/careerpath/monitoring.py`: captura HTTP limitada a 8192 bytes por
+  corpo, allowlist de campos, eventos JSONL append-only e fallback de escrita.
+- Integrados middleware público, `workers=1`, configuração no startup e fechamento
+  dos handlers no shutdown. Inferência, schema e artefato permanecem preservados.
+- Documentada variável `CAREERPATH_LOG_PATH`, padrão relativo `logs/inference.jsonl`.
+- Criados testes permanentes de logging e fixture ASGI compartilhada para não
+  duplicar séries Prometheus ao criar stacks BentoML na mesma suíte.
+- Adicionados diretório Docker gravável e exclusão de logs no Git/contexto Docker.
+- Criado `docs/av2/log-format.md`; atualizado estado do plano e escopo.
+
+### Arquivos
+
+- Criados: `src/careerpath/monitoring.py`, `tests/conftest.py`,
+  `tests/test_monitoring.py`, `docs/av2/log-format.md`.
+- Alterados: `src/careerpath/service.py`, `tests/test_service.py`, `.env.example`,
+  `.gitignore`, `.dockerignore`, `Dockerfile` e os três documentos de acompanhamento AV2.
+- Sem alteração no modelo, treinamento, schema, dependências ou lock.
+
+### Comandos e resultados observados
+
+- Teste inicial de sucesso: **1 failed**, pois a API ainda não criava o arquivo;
+  falha esperada antes de implementar a funcionalidade.
+- Testes direcionados de monitoramento/serviço: **27 passed in 5.07s**.
+- `uv run --frozen pytest -vv -o faulthandler_timeout=30`:
+  **59 passed in 23.66s**, incluindo os 41 testes anteriores e E2E com reinício real.
+- `ruff check .`: **All checks passed!** após formatação dos arquivos envolvidos.
+- Conferência final após formatação/revisão: **18 passed in 1.64s** em
+  `tests/test_monitoring.py`; Ruff aprovado e `python -m compileall -q src scripts tests`
+  concluído com exit code 0.
+- Sondagem CLI HTTP real: health, predict e metrics 200; perfil inválido e JSON
+  malformado 400; um worker efetivo; árvore encerrada e porta liberada.
+- Arquivo real `.bentoml/phase2/inference.jsonl`: exatamente três eventos com status
+  200/400/400 e capturas complete/complete/invalid_json; saída do evento válido
+  igual à resposta. Health e as duas consultas de metrics não acrescentaram linhas.
+- Revisão independente do código/testes: **nenhum achado bloqueante**; nenhuma
+  edição ou teste pesado executado pelo revisor.
+
+### Decisões e desvios registrados
+
+- Ruling: o diretório gravável do Docker foi antecipado da fase 5 para esta fase,
+  porque o novo startup precisa abrir o log como UID 10001. Sem o ajuste, o caminho
+  padrão em `/app` falharia. Build real e persistência por volume seguem na fase 5.
+- Ruling: filtro de `/metrics` verificado no limite ASGI e pelo CLI HTTP real.
+  O TestClient em memória ficou aguardando `/metrics`, inclusive em execução isolada;
+  a espera foi interrompida. Não foi alterado o endpoint nativo para acomodar o teste.
+- O timeout e a tentativa inicial de testes não foram contados como aprovações.
+  A suíte final passou inteira. Verificações pesadas continuaram sequenciais.
+- Falhas de disco são visíveis em stderr mesmo quando o logging padrão esconderia
+  exceções; não incluem mensagem da exceção nem substituem a resposta já enviada.
+
+### Pendências e próxima ação
+
+- Fase 3: guia e verificações permanentes da interpretação de `/metrics`.
+- Fases 4–7: carga reproduzível, persistência/CI, README, evidências e revisão final.
+- Não há rotação automática nem suporte a vários escritores no mesmo arquivo.
+- Docker não foi construído/executado nesta fase; não declarar validação do container.
+- Nenhum commit, push ou merge foi realizado pelo agente.
+
 ## Modelo para os próximos checkpoints
 
 ```markdown

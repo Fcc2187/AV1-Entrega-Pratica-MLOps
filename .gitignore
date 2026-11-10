@@ -13,6 +13,7 @@ htmlcov/
 data/raw/
 .bentoml/
 .env
+logs/
 
 # Editores e sistema operacional
 .idea/

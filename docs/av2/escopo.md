@@ -1,7 +1,7 @@
 # AV2 — escopo e decisões propostas
 
 Data: 10/11/2026. Branch observada: `av2`.
-Status: fases 0 e 1 concluídas; baseline validado em runtime; logging ainda não implementado.
+Status: fases 0, 1 e 2 concluídas; logging implementado e validado; fase 3 pendente.
 
 ## 1. Objetivo
 
@@ -282,3 +282,17 @@ o ambiente frozen, 41 testes aprovados, Ruff aprovado, respostas HTTP reais,
 no startup também foram sondadas. Os detalhes, comandos, limites e registro da
 retomada após reinício estão no [baseline da fase 1](phase-1-baseline.md).
 O logging da AV2 e seus testes permanentes ainda serão implementados na fase 2.
+
+## 13. Atualização após a fase 2
+
+Em 10/11/2026 foi implementada captura HTTP append-only com logger configurado no
+startup do único worker e fechado no shutdown. O contrato JSONL, sanitização,
+limites e interpretação dos campos estão em [log-format.md](log-format.md).
+A suíte passou com 59 testes, incluindo os 41 anteriores; o servidor real gerou
+três eventos 200/400/400 com saída correspondente à resposta. `/metrics` nativo
+continuou respondendo e não virou evento de inferência.
+
+Foi necessário preparar `/app/logs` no Dockerfile e excluir logs do contexto para
+que o novo requisito de escrita não tornasse o startup incompatível com UID 10001.
+Build/volume Docker, análises detalhadas de métricas e geração de carga continuam
+nas fases correspondentes, sem alegar validação de container nesta fase.

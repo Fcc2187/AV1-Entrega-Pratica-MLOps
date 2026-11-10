@@ -57,7 +57,7 @@ Os caminhos abaixo são planejados. O estado executado de cada fase fica no chec
 | --- | --- | --- | --- |
 | 0 | Consolidar escopo e reaproveitamento | Estes documentos e revisão estática | Concluída |
 | 1 | Verificar base, runtime e integração | Baseline atual e decisões confirmadas | Concluída |
-| 2 | Registrar entradas, saídas e falhas | JSONL append-only testado | Pendente |
+| 2 | Registrar entradas, saídas e falhas | JSONL append-only testado | Concluída |
 | 3 | Validar e interpretar `/metrics` | Endpoint real e guia de cálculos | Pendente |
 | 4 | Gerar carga reproduzível | Script e demonstração controlada | Pendente |
 | 5 | Integrar Docker, CI e reinício | Persistência e regressões verificadas | Pendente |
@@ -112,6 +112,8 @@ do ambiente e retomada no baseline; logging de entrada/saída permanece pendente
 
 **Criar:** `monitoring.py`, `tests/test_monitoring.py`, `docs/av2/log-format.md`.
 **Alterar:** `service.py`, testes de serviço, `.env.example`, `.gitignore`.
+Integração necessária: preparar diretório gravável no Dockerfile e excluir logs do
+contexto Docker. Volume e validação real do container continuam na fase 5.
 
 **Interfaces propostas:**
 - `configure_monitoring(log_path: Path) -> logging.Logger`: cria pais, valida abertura, configura um handler append sem propagação/duplicação.
@@ -119,20 +121,24 @@ do ambiente e retomada no baseline; logging de entrada/saída permanece pendente
 - Configuração pública: `CAREERPATH_LOG_PATH`, padrão `logs/inference.jsonl`.
 - Consome o contrato atual de `Profile`/`Prediction`; produz o JSONL lido nas fases seguintes. Tipos ASGI vêm de Starlette já instalado.
 
-- [ ] Escrever testes que falham: evento de sucesso com seis features e saída igual à resposta, probabilidade numérica em `[0,1]`, UUID e timestamp UTC com microssegundos, latência não negativa.
-- [ ] Acrescentar teste de append: gravar uma linha, realizar novas chamadas e verificar prefixo anterior idêntico em bytes, novas linhas parseáveis e nenhuma duplicação por handler.
-- [ ] Acrescentar casos: JSON malformado, idade inválida, campo extra, categoria desconhecida, `null` e exceção interna simulada. Exigir um evento por pedido concluído, status real e saída nula nos erros.
-- [ ] Acrescentar teste de captura em vários chunks, Unicode, mais de 8 KiB, campos extras e valor aninhado: nenhuma fuga de campos e nenhum corpo consumido ou alterado pelo middleware.
-- [ ] Acrescentar teste de concorrência no worker: eventos íntegros, IDs únicos e entrada/saída correspondentes, sem exigir ordem de conclusão.
-- [ ] Acrescentar testes de falha de abertura e escrita: startup falha claramente na primeira; falha posterior chega a stderr e não reenvia nem substitui uma resposta já iniciada.
-- [ ] Executar `uv run --frozen pytest -q tests/test_monitoring.py tests/test_service.py` e confirmar falha ligada ao comportamento novo antes da implementação.
-- [ ] Implementar as interfaces pela integração pública confirmada na fase 1, usando `logging`, `json`, `uuid`, UTC e relógio monotônico da biblioteca padrão.
-- [ ] Configurar o caminho no `.env.example` com valor de exemplo não secreto e ignorar `logs/` e resultados locais; não depender de carregamento automático de `.env` inexistente.
-- [ ] Executar novamente os testes direcionados e Ruff; confirmar sucesso e contrato HTTP preservado.
-- [ ] Documentar cada campo, tratamento de erros/nulos, limites de captura e justificativa CRISP-DM; registrar checkpoint.
+- [x] Escrever teste de evento de sucesso e observar sua falha por ausência do arquivo antes de implementar o logging.
+- [x] Cobrir append com prefixo idêntico em bytes, reinício de lifespan e reconfiguração sem duplicação.
+- [x] Cobrir JSON malformado, idade inválida, campo extra, categoria desconhecida, `null` e falha interna simulada, sem gravar detalhes da exceção.
+- [x] Cobrir chunks, Unicode, 8 KiB, valores aninhados e não finitos, mantendo os corpos HTTP originais.
+- [x] Verificar concorrência no worker: 12 eventos íntegros, IDs únicos e pares entrada/saída corretos.
+- [x] Cobrir falha no startup e falha posterior de escrita com stderr visível e resposta preservada, inclusive com `logging.raiseExceptions=False`.
+- [x] Executar o teste inicial vermelho; depois os testes direcionados (27 passaram) e a suíte completa (59 passaram).
+- [x] Implementar captura via `add_asgi_middleware`, configuração do handler no startup e fechamento no shutdown.
+- [x] Documentar/exportar `CAREERPATH_LOG_PATH`; ignorar logs no Git e contexto Docker sem carregar `.env` automaticamente.
+- [x] Confirmar Ruff e contrato HTTP preservado; verificar três eventos pelo CLI real e `/metrics` funcionando sem gerar eventos de inferência.
+- [x] Documentar formato em [log-format.md](log-format.md), registrar checkpoint e obter revisão independente sem achados bloqueantes.
 
 **Aceite:** rastros de sucesso, validação e falha interna são analisáveis, append é
 comprovado e chamadas concorrentes no worker não corrompem nem duplicam registros.
+
+Concluída em 10/11/2026. Suíte completa: 59 testes passaram em 23,66 s. Servidor
+real gerou status 200/400/400 no JSONL, com saída correspondente à resposta e
+health/metrics excluídos. A fase 3 e as demais permanecem pendentes.
 
 ## Fase 3 — métricas e interpretação
 
@@ -186,7 +192,7 @@ no host e, quando disponível, container com logs graváveis e preservados por v
 
 - [ ] Ampliar E2E para passar caminho temporário de log ao subprocesso, gerar carga e reiniciar o serviço usando o mesmo arquivo; verificar bytes anteriores, novas linhas e resposta do modelo após reinício.
 - [ ] Observar contadores antes/depois do reinício e registrar a janela nova; não depender de valores globais exatos de outros endpoints.
-- [ ] Atualizar Dockerfile para criar `/app/logs` com permissão para UID 10001 antes de `USER appuser` e definir o caminho coerente com o volume.
+- [ ] Conferir `/app/logs` gravável para UID 10001, já preparado na fase 2 para o startup do logging, e definir o caminho coerente com o volume.
 - [ ] Documentar comando Docker com volume nomeado em `/app/logs`; testar remover/recriar container com o mesmo volume e confirmar append. Não apagar volumes do usuário.
 - [ ] Ajustar CI para pushes em `main` e `av2`, mantendo pull requests, permissões mínimas, versões fixadas, Ruff e pytest. CI de qualidade não precisa de artifact de dados do pipeline Garmin.
 - [ ] Ajustar receitas úteis do justfile, preservando o comando direto com uv para quem não tem just instalado.
