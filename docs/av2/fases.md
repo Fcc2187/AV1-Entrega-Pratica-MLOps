@@ -58,7 +58,7 @@ Os caminhos abaixo são planejados. O estado executado de cada fase fica no chec
 | 0 | Consolidar escopo e reaproveitamento | Estes documentos e revisão estática | Concluída |
 | 1 | Verificar base, runtime e integração | Baseline atual e decisões confirmadas | Concluída |
 | 2 | Registrar entradas, saídas e falhas | JSONL append-only testado | Concluída |
-| 3 | Validar e interpretar `/metrics` | Endpoint real e guia de cálculos | Pendente |
+| 3 | Validar e interpretar `/metrics` | Endpoint real e guia de cálculos | Concluída |
 | 4 | Gerar carga reproduzível | Script e demonstração controlada | Pendente |
 | 5 | Integrar Docker, CI e reinício | Persistência e regressões verificadas | Pendente |
 | 6 | Documentar e coletar evidências | README e capturas reais | Pendente |
@@ -148,17 +148,21 @@ health/metrics excluídos. A fase 3 e as demais permanecem pendentes.
 **Consome:** `/metrics` nativo observado na fase 1 e JSONL da fase 2.
 **Produz:** nomes reais das séries, duas coletas comparáveis e método de cálculo.
 
-- [ ] Adicionar E2E que consulta metrics antes e depois de predict válido e inválido; verificar exposição parseável, contador por endpoint/status e histograma de duração. Preferir parser já presente no ambiente; não fixar a ordem das linhas.
-- [ ] Executar o teste e verificar o estado real: métricas nativas já funcionais não precisam de código novo nem de teste artificialmente vermelho.
-- [ ] Habilitar/ajustar somente a configuração nativa necessária; não escrever endpoint concorrente e não usar rótulos de alta cardinalidade como request ID.
-- [ ] Documentar unidades reais, soma, contagem, limites e buckets cumulativos usando nomes copiados da execução.
-- [ ] Explicar frequências por diferença de buckets, média por `delta(sum)/delta(count)` e taxas HTTP/servidor definidas no escopo; mostrar denominador zero como `N/A` e resets como janela nova.
-- [ ] Explicar boxplot exato a partir de `latency_ms` no JSONL e limitações de estimativas pelos buckets; não alegar igualdade exata de duração com o runtime.
-- [ ] Demonstrar exemplos aritméticos identificados como didáticos: 20 pedidos, 2 respostas 4xx e 1 resposta 5xx resultam em 15% de falhas HTTP e 5% de falhas do servidor. Capturas reais ficam separadas.
-- [ ] Executar E2E e registrar nomes observados, comportamento de reset e checkpoint.
+- [x] Ampliar o E2E com capturas antes/depois de predict válido e inválido, parser existente, contadores/status e histograma sem depender da ordem textual.
+- [x] Confirmar o funcionamento nativo: novo contrato passou sem alteração de produção ou falha artificial.
+- [x] Preservar configuração e endpoint nativos; nenhuma nova dependência ou label de alta cardinalidade.
+- [x] Documentar unidades, soma, contagem, labels e limites reais dos buckets em [metrics.md](metrics.md).
+- [x] Explicar diferenças de buckets, média ponderada, taxas HTTP/servidor, zero tráfego como N/A e reset como nova janela.
+- [x] Documentar boxplot a partir do JSONL e quartis lineares, distinguindo observações individuais de estimativas por buckets.
+- [x] Separar exemplos didáticos de aritmética dos valores reais, com capturas versionadas em `docs/av2/evidence/phase-3/`.
+- [x] Verificar dois ciclos do servidor real e reset; suíte completa com 59 testes passou; revisão independente e checkpoint registrados.
 
 **Aceite:** métricas mudam com carga real; guia permite interpretar histogramas,
 latência e erros e distingue memória do processo de armazenamento histórico.
+
+Concluída em 10/11/2026: E2E direcionado passou em 17,82 s; suíte completa com
+59 testes passou em 23,19 s; Ruff aprovado. Exemplo Python do guia executado com
+amostra real e log vazio; ajuste de zero tráfego encontrado na revisão foi corrigido.
 
 ## Fase 4 — carga e suficiência dos dados
 

@@ -1,7 +1,7 @@
 # AV2 — escopo e decisões propostas
 
 Data: 10/11/2026. Branch observada: `av2`.
-Status: fases 0, 1 e 2 concluídas; logging implementado e validado; fase 3 pendente.
+Status: fases 0 a 3 concluídas; logging e métricas validados; fase 4 pendente.
 
 ## 1. Objetivo
 
@@ -296,3 +296,12 @@ Foi necessário preparar `/app/logs` no Dockerfile e excluir logs do contexto pa
 que o novo requisito de escrita não tornasse o startup incompatível com UID 10001.
 Build/volume Docker, análises detalhadas de métricas e geração de carga continuam
 nas fases correspondentes, sem alegar validação de container nesta fase.
+
+## 14. Atualização após a fase 3
+
+Em 10/11/2026, o E2E passou a validar contadores e histogramas antes/depois de uma
+inferência válida e uma inválida em cada um de dois startups. O reset foi observado
+no segundo ciclo. O guia [metrics.md](metrics.md) reúne cálculos, retenção, limites
+de quantis, boxplot pelo JSONL e capturas reais versionadas. A suíte completa passou
+com 59 testes; não houve mudança no código da aplicação nem nas dependências.
+O exemplo de log vazio foi corrigido e reexecutado após a revisão independente.

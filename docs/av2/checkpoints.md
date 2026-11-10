@@ -255,6 +255,70 @@ Estado: concluída. Base: `b262b18`, branch `av2`; árvore limpa ao iniciar.
 - Docker não foi construído/executado nesta fase; não declarar validação do container.
 - Nenhum commit, push ou merge foi realizado pelo agente.
 
+## Fase 3 — métricas e interpretação
+
+Data: 10/11/2026.
+Estado: concluída. Base: `57396e5`, branch `av2`; árvore limpa ao iniciar.
+
+### O que foi feito
+
+- Ampliado o E2E existente, mantendo dois ciclos reais do servidor, para consultar
+  `/metrics` antes/depois de um predict 200 e outro 400 por ciclo.
+- Validado formato com parser Prometheus já instalado, labels, deltas por status,
+  soma/contagem e frequências derivadas dos buckets cumulativos.
+- Comprovado reset: cada ciclo iniciou com contadores de predict em zero, inclusive
+  o segundo depois de o primeiro acumular dois pedidos.
+- Isolado o destino do log do E2E em `tmp_path`, sem gravar no log de uso manual.
+- Criado guia `docs/av2/metrics.md` com coleta, fórmulas, quartis/boxplot, casos sem
+  tráfego, erros, retenção e exemplos didáticos separados de resultados reais.
+- Salvas capturas e eventos sintéticos em `docs/av2/evidence/phase-3/`.
+
+### Arquivos
+
+- Alterado: `tests/test_e2e.py`, além dos documentos de acompanhamento AV2.
+- Criados: `docs/av2/metrics.md`; evidências `metrics-0-before.prom`,
+  `metrics-0-after.prom`, `metrics-1-before.prom`, `metrics-summary.json` e
+  `inference-sample.jsonl` em `docs/av2/evidence/phase-3/`.
+- Sem alterações no código da aplicação, configuração de runtime, dependências,
+  lock, modelo ou contrato de inferência.
+
+### Comandos e resultados observados
+
+- E2E direcionado com capturas locais em `.bentoml/phase3-e2e`:
+  **1 passed in 17.82s**. O teste encerrou ambas as árvores e confirmou porta liberada.
+- `uv run --frozen pytest -q -o faulthandler_timeout=40`:
+  **59 passed in 23.19s**. A quantidade permanece 59 porque foi ampliado o teste
+  existente, sem duplicar os ciclos de startup em outro teste.
+- Ruff: **All checks passed!**; compilação de `tests/` concluída sem erros.
+- Em cada ciclo: deltas por status 200=1, 400=1, 500=0; histograma com contagem 2,
+  buckets cumulativos monotônicos e frequências não negativas somando 2.
+- Na captura versionada, médias nativas de 34,02885 ms e 35,00810 ms. Taxas de
+  falhas HTTP de 50% e falhas do servidor de 0%, devido à rejeição proposital.
+- Conferência independente dos arquivos salvos: contadores antes/depois/reset,
+  soma e médias correspondem ao resumo. Quatro eventos sintéticos formam a amostra
+  de latências do guia.
+- Exemplo Python de boxplot executado: quatro observações, quartis lineares e
+  bigodes calculados. O mesmo exemplo com arquivo vazio passou a imprimir N/A.
+
+### Revisão e decisões
+
+- A instrumentação nativa já atendia ao contrato, então não foi criado endpoint
+  nem produzida falha artificial para justificar código novo de produção.
+- A espera pelo health mantém pausa de 0,1 s tanto em erro de conexão quanto em
+  resposta HTTP não saudável, após o helper passar a devolver status de erro.
+- A revisão independente encontrou acesso a coluna inexistente quando o JSONL
+  estava vazio. O problema foi reproduzido (`KeyError: endpoint`), corrigido no
+  exemplo e reexecutado com sucesso nos casos vazio e preenchido.
+- Demais cálculos, capturas e assertions revisados sem achados bloqueantes.
+- Checagem final após ajustar o backoff: E2E **1 passed in 18.18s** e Ruff aprovado.
+  Diff sem erros de whitespace e links locais dos documentos conferidos.
+- Guia e dados bastam ao escopo desta fase; não foi criada a planilha opcional.
+
+### Próxima ação
+
+Fase 4 — geração de carga reproduzível e suficiência dos dados. Fases 4–7 continuam
+pendentes; nenhuma publicação, alteração remota ou commit foi realizado pelo agente.
+
 ## Modelo para os próximos checkpoints
 
 ```markdown

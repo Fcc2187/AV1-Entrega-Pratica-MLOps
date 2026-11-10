@@ -1,4 +1,5 @@
 import json
+import math
 import os
 import shutil
 import signal
@@ -7,8 +8,11 @@ import subprocess
 import time
 from pathlib import Path
 from typing import IO
-from urllib.error import URLError
+from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+
+from prometheus_client.parser import text_string_to_metric_families
+from prometheus_client.samples import Sample
 
 PROJECT_ROOT = Path(__file__).parents[1]
 
@@ -29,16 +33,48 @@ def request_json(
         headers={"content-type": "application/json"} if data else {},
         method="POST" if data else "GET",
     )
-    with urlopen(request, timeout=2) as response:
+    try:
+        response = urlopen(request, timeout=2)
+    except HTTPError as error:
+        response = error
+    with response:
         return response.status, json.load(response)
 
 
-def start_service(port: int, log: IO[str]) -> subprocess.Popen[str]:
+def request_metrics(port: int) -> tuple[str, list[Sample]]:
+    with urlopen(f"http://127.0.0.1:{port}/metrics", timeout=3) as response:
+        assert response.status == 200
+        assert response.headers.get_content_type() in ("text/plain", "application/openmetrics-text")
+        text = response.read().decode("utf-8")
+    families = list(text_string_to_metric_families(text))
+    assert any(f.name == "bentoml_service_request" and f.type == "counter" for f in families)
+    assert any(
+        f.name == "bentoml_service_request_duration_seconds" and f.type == "histogram"
+        for f in families
+    )
+    return text, [sample for family in families for sample in family.samples]
+
+
+def metric_value(samples: list[Sample], name: str, **labels: str) -> float:
+    return sum(
+        sample.value
+        for sample in samples
+        if sample.name == name
+        and sample.labels.get("endpoint") == "/predict"
+        and all(sample.labels.get(key) == value for key, value in labels.items())
+    )
+
+
+def start_service(port: int, log: IO[str], inference_log: Path) -> subprocess.Popen[str]:
     uv = shutil.which("uv")
     assert uv is not None, "uv is required to run the documented service command"
     options: dict[str, object] = {
         "cwd": PROJECT_ROOT,
-        "env": {**os.environ, "BENTOML_DO_NOT_TRACK": "True"},
+        "env": {
+            **os.environ,
+            "BENTOML_DO_NOT_TRACK": "True",
+            "CAREERPATH_LOG_PATH": str(inference_log),
+        },
         "stdout": log,
         "stderr": subprocess.STDOUT,
         "text": True,
@@ -117,7 +153,8 @@ def wait_for_health(
             if status == 200:
                 return body
         except (ConnectionError, TimeoutError, URLError):
-            time.sleep(0.1)
+            pass
+        time.sleep(0.1)
     log.flush()
     raise AssertionError(f"service did not become healthy:\n{log_path.read_text('utf-8')}")
 
@@ -133,13 +170,20 @@ def test_service_predicts_after_real_restart(tmp_path: Path) -> None:
         "hours_per_week": 40,
     }
 
+    inference_log = tmp_path / "inference.jsonl"
+    measurements = []
     for attempt in range(2):
         log_path = tmp_path / f"service-{attempt}.log"
         with log_path.open("w", encoding="utf-8") as log:
-            process = start_service(port, log)
+            process = start_service(port, log, inference_log)
             try:
                 health = wait_for_health(process, port, log, log_path)
+                before_text, before = request_metrics(port)
+                # Each fresh process starts a new window, including after restart.
+                assert metric_value(before, "bentoml_service_request_total") == 0
                 status, prediction = request_json(port, "/predict", profile)
+                invalid_status, _ = request_json(port, "/predict", {**profile, "age": -1})
+                after_text, after = request_metrics(port)
             finally:
                 stop_service(process, port)
 
@@ -149,3 +193,84 @@ def test_service_predicts_after_real_restart(tmp_path: Path) -> None:
         assert prediction["income_class_proxy"] in {"<=50K", ">50K"}
         assert 0 <= prediction["probability_above_50k"] <= 1
         assert prediction["model_version"] == "adult-income-v1"
+        assert invalid_status == 400
+
+        counter = "bentoml_service_request_total"
+        duration = "bentoml_service_request_duration_seconds"
+        counter_deltas = {
+            code: metric_value(after, counter, http_response_code=code)
+            - metric_value(before, counter, http_response_code=code)
+            for code in ("200", "400", "500")
+        }
+        assert counter_deltas == {"200": 1, "400": 1, "500": 0}
+        assert metric_value(after, duration + "_count") == 2
+        duration_sum = metric_value(after, duration + "_sum")
+        assert math.isfinite(duration_sum) and duration_sum >= 0
+
+        bounds = sorted(
+            {
+                float(s.labels["le"])
+                for s in after
+                if s.name == duration + "_bucket" and s.labels.get("endpoint") == "/predict"
+            }
+        )
+        assert bounds[-1] == math.inf
+        cumulative = [
+            sum(
+                s.value
+                for s in after
+                if s.name == duration + "_bucket"
+                and s.labels.get("endpoint") == "/predict"
+                and float(s.labels["le"]) == bound
+            )
+            - sum(
+                s.value
+                for s in before
+                if s.name == duration + "_bucket"
+                and s.labels.get("endpoint") == "/predict"
+                and float(s.labels["le"]) == bound
+            )
+            for bound in bounds
+        ]
+        assert cumulative == sorted(cumulative)
+        assert cumulative[-1] == 2
+        frequencies = [
+            current - previous
+            for previous, current in zip([0, *cumulative[:-1]], cumulative, strict=True)
+        ]
+        assert sum(frequencies) == 2 and min(frequencies) >= 0
+        required_labels = {
+            "endpoint",
+            "http_response_code",
+            "runner_name",
+            "service_name",
+            "service_version",
+        }
+        assert all(required_labels <= s.labels.keys() for s in after if s.name == counter)
+
+        (tmp_path / f"metrics-{attempt}-before.prom").write_text(before_text, encoding="utf-8")
+        (tmp_path / f"metrics-{attempt}-after.prom").write_text(after_text, encoding="utf-8")
+        measurements.append(
+            {
+                "cycle": attempt,
+                "initial_predict_count": 0,
+                "counter_deltas": counter_deltas,
+                "count": 2,
+                "duration_sum_seconds": duration_sum,
+                "mean_latency_ms": duration_sum / 2 * 1000,
+                "http_error_percent": 50.0,
+                "server_error_percent": 0.0,
+                "buckets": [
+                    {
+                        "le_seconds": "+Inf" if math.isinf(bound) else bound,
+                        "cumulative": count,
+                        "frequency": frequency,
+                    }
+                    for bound, count, frequency in zip(bounds, cumulative, frequencies, strict=True)
+                ],
+            }
+        )
+    (tmp_path / "metrics-summary.json").write_text(
+        json.dumps(measurements, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
