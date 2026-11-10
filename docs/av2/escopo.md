@@ -1,7 +1,7 @@
 # AV2 — escopo e decisões propostas
 
 Data: 10/11/2026. Branch observada: `av2`.
-Status: planejamento elaborado; implementação da AV2 não iniciada.
+Status: fases 0 e 1 concluídas; baseline validado em runtime; logging ainda não implementado.
 
 ## 1. Objetivo
 
@@ -194,3 +194,91 @@ Não apagar arquivos, criar tags, fazer commit, push ou merge nesta etapa de pla
 
 Documentação `latest` orienta o desenho, mas não substitui a verificação da versão
 fixada do projeto. O enunciado do professor continua sendo a fonte dos requisitos.
+
+## 11. Resultado da fase 0 — revisão após o commit do planejamento
+
+Revisão realizada em 10/11/2026 sobre a branch `av2`, HEAD `496d277`
+(`docs: planeja continuidade do CareerPath para AV2`). Esta seção registra o
+resultado da descoberta; as seções anteriores continuam sendo o contrato proposto.
+
+### Arquitetura definida para a continuação
+
+```text
+Cliente / gerador de carga
+          |
+          v
+Servidor BentoML
+  captura HTTP de /predict -> validação Profile -> pipeline existente -> Prediction
+          |                                                         |
+          +---------- evento de entrada + saída + tempo + status ----+
+                                    |
+                                    v
+                         logs/inference.jsonl (append)
+
+GET /metrics -> exposição nativa BentoML, consultada antes/depois da carga
+GET /health  -> contrato atual preservado
+```
+
+O ponto de extensão HTTP será confirmado na fase 1 para incluir JSON malformado e
+validação rejeitada antes de `predict`. O diagrama não comprova que esse ponto já
+foi instalado ou testado. A inferência e o treinamento não receberão dependência
+do módulo de monitoramento; a composição fica no serviço HTTP.
+
+### Contrato existente que deve ser preservado
+
+| Campo HTTP | Uso atual e motivo para observar | Nome no dataset/pipeline |
+| --- | --- | --- |
+| `age` | Idade, distribuição numérica de perfis recebidos; inteiro de 17 a 100 | `age` |
+| `hours_per_week` | Jornada semanal, distribuição numérica; inteiro de 1 a 99 | `hours-per-week` |
+| `education` | Escolaridade, frequência das categorias | `education` |
+| `workclass` | Vínculo de trabalho, frequência e presença de nulos | `workclass` |
+| `occupation` | Ocupação, frequência e presença de nulos | `occupation` |
+| `marital_status` | Estado civil, frequência das categorias | `marital-status` |
+
+Os seis campos são exigidos pelo schema; `workclass` e `occupation` aceitam `null`,
+o que não equivale a campo ausente. Categorias têm até 80 caracteres; `?` e campos
+extras são rejeitados. O monitoramento não deve mudar essas regras.
+
+A saída continua com `income_class_proxy`, `probability_above_50k` e
+`model_version`. O limiar atual é 0,5: igualdade já resulta em `>50K`.
+Não acrescentar score comercial, renda atual ou decisão de elegibilidade ao contrato.
+
+### Evidências estáticas verificadas
+
+- SHA-256 do arquivo `models/adult-income-v1.pkl`:
+  `cfc85186a943d1ec52b97a8c9ee4b675d948a69918ae958a6d72c222027bb716`.
+  O valor calculado com `Get-FileHash` corresponde ao registrado na metadata.
+  Essa correspondência não substitui carregar o modelo no runtime compatível.
+- `load_artifact` verifica hash, versão de scikit-learn e tipo do artefato antes
+  de retornar o pipeline; não é necessário criar outro carregador para a AV2.
+- O E2E atual já inicia e encerra o serviço duas vezes; será ampliado para usar o
+  mesmo destino de log entre ciclos. Ainda não verifica logs nem métricas.
+- Os testes de serviço esperam HTTP 400 para entradas inválidas. Preservar o
+  comportamento observado pela suíte; não presumir HTTP 422 por analogia a FastAPI.
+- `Dockerfile` usa UID 10001 e ainda não prepara um diretório de logs gravável.
+- A CI aceita push em `main` e pull requests; push direto em `av2` não está listado.
+- A instalação pede Python `>=3.12,<3.13`; o launcher local listou somente Python
+  3.14 na preparação anterior. O runtime da aplicação ainda precisa ser preparado.
+
+### Decisões e dependências da próxima fase
+
+| Decisão consolidada | Verificação exigida antes de implementá-la |
+| --- | --- |
+| Usar captura HTTP, em vez de logging somente dentro de `predict` | API pública e ordem dos middlewares na versão BentoML fixada |
+| Usar um escritor para `inference.jsonl` | Configuração e topologia efetivas no comando CLI |
+| Aproveitar métricas nativas | Resposta de `/metrics`, nomes, labels e unidade reais |
+| Preservar previsões e validação | Baseline atual com instalação frozen, pytest e Ruff |
+| Manter histórico da AV1 | Limitar alterações de documentação nova a `docs/av2/` nesta fase |
+
+Não há impedimento de escopo para a continuação. Ausência de runtime verificado é
+uma pendência da fase 1, não prova de defeito no serviço. A fase 0 termina aqui;
+ainda não há evidência atual de logging, métricas, teste ou container funcionando.
+
+## 12. Atualização após a fase 1
+
+O estado acima registra o encerramento da fase 0. Em 10/11/2026 a fase 1 confirmou
+o ambiente frozen, 41 testes aprovados, Ruff aprovado, respostas HTTP reais,
+`/metrics` nativo e um worker efetivo. A integração pública e a propagação de erro
+no startup também foram sondadas. Os detalhes, comandos, limites e registro da
+retomada após reinício estão no [baseline da fase 1](phase-1-baseline.md).
+O logging da AV2 e seus testes permanentes ainda serão implementados na fase 2.

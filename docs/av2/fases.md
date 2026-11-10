@@ -20,7 +20,7 @@
 - Usar dependências existentes e biblioteca padrão; não atualizar o lock sem necessidade demonstrada.
 - Não importar prazos, tag `sr1`, duração de apresentação ou gates de troca de modelo da AV1.
 - Não apresentar resultados históricos, exemplos ou resultados esperados como execução atual.
-- Não implementar nesta etapa de planejamento. Commit, push, merge e publicação ficam fora desta etapa.
+- Executar somente as fases solicitadas pelo usuário. Commit, push, merge e publicação exigem instrução correspondente.
 
 ## Review Focus
 
@@ -32,7 +32,7 @@
 
 ## Organização e responsabilidades dos arquivos
 
-Os caminhos abaixo são planejados; só os três Markdown em `docs/av2/` são criados agora.
+Os caminhos abaixo são planejados. O estado executado de cada fase fica no checkpoint.
 
 | Caminho | Ação futura e responsabilidade |
 | --- | --- |
@@ -53,10 +53,10 @@ Os caminhos abaixo são planejados; só os três Markdown em `docs/av2/` são cr
 
 ## Visão geral
 
-| Fase | Finalidade | Entregável | Estado inicial |
+| Fase | Finalidade | Entregável | Estado atual |
 | --- | --- | --- | --- |
-| 0 | Consolidar escopo e reaproveitamento | Estes documentos | Planejamento elaborado |
-| 1 | Verificar base, runtime e integração | Baseline atual e decisões confirmadas | Pendente |
+| 0 | Consolidar escopo e reaproveitamento | Estes documentos e revisão estática | Concluída |
+| 1 | Verificar base, runtime e integração | Baseline atual e decisões confirmadas | Concluída |
 | 2 | Registrar entradas, saídas e falhas | JSONL append-only testado | Pendente |
 | 3 | Validar e interpretar `/metrics` | Endpoint real e guia de cálculos | Pendente |
 | 4 | Gerar carga reproduzível | Script e demonstração controlada | Pendente |
@@ -76,8 +76,11 @@ Entregável: `escopo.md`, `fases.md` e `checkpoints.md`.
 - [x] Conferir branch, código e planos da AV1.
 - [x] Mapear requisitos, arquivos preservados e alterações futuras.
 - [x] Registrar limites, critérios e ausência de resultados de runtime atuais.
+- [x] Revisar novamente o projeto após o commit `496d277` e consolidar arquitetura, contrato e evidências estáticas na seção 11 de `escopo.md`.
 
-Conclusão: planejamento disponível para revisão; não representa logging implementado.
+Conclusão: descoberta e design consolidados em 10/11/2026. Hash do artefato confere
+com a metadata; contratos, pontos de alteração e pendências estão registrados.
+Implementação e validação em runtime continuam pendentes a partir da fase 1.
 
 ## Fase 1 — baseline e decisões de integração
 
@@ -87,18 +90,23 @@ atualizar `escopo.md` apenas se a verificação técnica exigir uma decisão dif
 **Consome:** branch e artefato da AV1. **Produz:** baseline com comandos observados,
 API pública de middleware confirmada e topologia de um escritor definida.
 
-- [ ] Conferir `git status --short` e `git branch --show-current`; preservar alterações existentes.
-- [ ] Localizar uv e Python 3.12; se ausentes, registrar o impedimento e preparar o ambiente pelo mecanismo disponível, sem atualização global desnecessária.
-- [ ] Executar `uv sync --frozen --python 3.12`, `uv run --frozen pytest -q` e `uv run --frozen ruff check .`; registrar resultados atuais.
-- [ ] Subir `uv run --frozen bentoml serve careerpath.service:CareerPathService --host 127.0.0.1 --port 3000 --do-not-track`; consultar health, um predict válido, inválido e metrics.
-- [ ] Inspecionar a API pública de middleware no BentoML fixado e testar sua posição em relação à validação. Não envolver somente a função de inferência ou somente o app de health.
-- [ ] Confirmar configuração para um worker e onde o middleware executa; definir quem cria o arquivo e evitar handlers duplicados durante imports/startup.
-- [ ] Definir inicialização do destino antes de aceitar tráfego e confirmar que ausência de permissão produz erro claro. Reservar teste com simulação portátil de falha de abertura.
-- [ ] Registrar comando final de startup, nomes/labels de métricas e baseline no checkpoint.
+- [x] Conferir `git status --short` e `git branch --show-current`; preservar alterações existentes.
+- [x] Localizar uv e Python 3.12; preparar ambiente local sem atualização global desnecessária.
+- [x] Executar instalação frozen, suíte completa e Ruff. Na retomada, pytest verboso com diagnóstico de espera: 41 testes passaram em 47,25 s.
+- [x] Subir BentoML com host `127.0.0.1` e porta livre (`55506` na captura final); consultar health, predict válido, inválido, JSON malformado e metrics.
+- [x] Confirmar a API pública e a posição do middleware em relação à validação na versão fixada.
+- [x] Confirmar um worker efetivo, criação do handler no startup e prevenção de duplicação nos imports.
+- [x] Confirmar propagação de falha de abertura simulada no startup; reservar testes permanentes da implementação para a fase 2.
+- [x] Registrar comando final, nomes/labels de métricas e [baseline da fase 1](phase-1-baseline.md).
 
 **Aceite:** API da AV1 responde; ambiente frozen funciona; integração proposta consegue
 observar erros de validação e tem um único escritor. Se isso falhar, resolver a causa
 antes de implementar logging sobre uma premissa incorreta.
+
+Conclusão em 10/11/2026: ambiente frozen conferido (81 pacotes), 41 testes passaram,
+Ruff aprovado, HTTP e métricas confirmados, um worker efetivo e integração pública
+validados. O servidor da sondagem foi encerrado e a porta liberada. Ver limitações
+do ambiente e retomada no baseline; logging de entrada/saída permanece pendente.
 
 ## Fase 2 — logging de inferência
 

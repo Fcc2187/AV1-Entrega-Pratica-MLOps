@@ -3,7 +3,7 @@
 Este histórico é da AV2. `docs/checkpoints.md` continua sendo o registro da AV1.
 Os resultados antigos não substituem verificações atuais.
 
-## Fase 0 — planejamento
+## Preparação — elaboração do planejamento
 
 Data: 10/11/2026.
 Estado: planejamento elaborado; implementação não iniciada.
@@ -60,6 +60,135 @@ Estado: planejamento elaborado; implementação não iniciada.
 
 Após solicitação de implementação, iniciar a fase 1 de `fases.md`. A existência
 deste planejamento não autoriza declarar requisitos implementados ou testes passando.
+
+## Fase 0 — descoberta e design consolidados
+
+Data: 10/11/2026.
+Estado: concluída por análise estática, conforme solicitação de executar somente a fase 0.
+
+### O que foi feito
+
+- Confirmados branch `av2` e commit do planejamento `496d277`.
+- Relido o enunciado completo e confrontado com serviço, schema, modelo, treino,
+  exemplos, testes, Docker, CI e documentação existente.
+- Consolidado o desenho na seção 11 de `escopo.md`, sem criar uma cópia concorrente
+  do documento de escopo.
+- Registrados limites de entrada, campos anuláveis, mapeamento HTTP/dataset,
+  threshold de classificação e comportamento de erro esperado pelos testes.
+- Conferida a integridade do artefato pelo SHA-256, sem desserializá-lo.
+- Separados fatos confirmados por arquivos das verificações futuras de runtime.
+
+### Arquivos alterados
+
+- `docs/av2/escopo.md`: estado da fase 0, arquitetura, contrato, evidências e dependências.
+- `docs/av2/fases.md`: fase 0 concluída e demais fases mantidas pendentes.
+- `docs/av2/checkpoints.md`: preparação histórica separada deste checkpoint de execução.
+
+### Decisões e justificativas
+
+- Preservar a API e o pipeline; a AV2 acrescenta observabilidade ao serviço existente.
+- Capturar na camada HTTP para alcançar falhas anteriores à função de inferência.
+- Usar JSONL append-only e métricas nativas, sujeitos à confirmação técnica da fase 1.
+- Manter documentação antiga e testes como histórico e proteção da continuação.
+- Executar somente a fase solicitada; nenhuma autorização anterior para outras
+  fases substitui a delimitação mais recente do usuário.
+
+### Comandos e resultados observados
+
+- `git branch --show-current`: `av2`.
+- `git log -3 --oneline`: planejamento registrado em `496d277`.
+- `Get-FileHash models/adult-income-v1.pkl -Algorithm SHA256`: corresponde ao
+  `artifact_sha256` da metadata (`cfc85186...027bb716`).
+- Leitura dos arquivos: confirmados requisitos, contratos e pontos de integração.
+- Conferência documental final: links relativos válidos, texto sem espaços finais
+  e `git diff --check` sem erros; nenhuma alteração em código ou configuração.
+- Nenhum teste de aplicação, servidor, carga, treinamento ou container executado
+  nesta fase. Os 41 testes antigos continuam sendo somente evidência histórica.
+
+### Observação sobre a preparação interrompida
+
+Antes de o usuário delimitar o trabalho à fase 0, houve tentativa de preparar uv
+localmente em `.tools/`. A tentativa sem acesso de rede falhou em resolver PyPI;
+uma tentativa posterior deixou arquivos locais mesmo com o turno interrompido.
+Essa ferramenta não faz parte da entrega da fase 0 e o diretório temporário criado
+pelo agente foi removido após conferir o caminho e seu conteúdo. Nenhuma dependência
+foi adicionada a `pyproject.toml`, e o lock permanece intacto.
+
+### Pendências e riscos
+
+- Fase 1: preparar Python 3.12/uv e executar baseline frozen, pytest e Ruff.
+- Confirmar API/ordem de middleware e um único escritor no BentoML 1.4.39.
+- Consultar `/metrics` real; não assumir que a documentação latest descreve todos
+  os detalhes da versão fixada.
+- Docker e CI exigem os ajustes já planejados, nas fases correspondentes.
+- Prazo, eventual tag e critérios não incluídos no texto recebido continuam desconhecidos.
+
+### Próxima ação
+
+Fase 1 — baseline e decisões de integração, quando solicitada. Nenhuma outra fase
+foi iniciada nesta execução da fase 0.
+
+## Fase 1 — baseline e decisões de integração
+
+Data: 10/11/2026.
+Estado: concluída, após retomada solicitada pelo usuário depois de reiniciar o PC.
+
+### O que foi feito
+
+- Preservados branch `av2`, HEAD `496d277` e alterações documentais da fase 0.
+- Instalados uv 0.12.5 e Python 3.12.14 para uso local; ambiente `.venv` sincronizado
+  com as versões do lock, sem alterar `pyproject.toml` ou `uv.lock`.
+- Executada suíte completa e conferido Ruff após o reinício.
+- Consultados health, predict válido, perfil inválido, JSON malformado e métricas
+  de um servidor HTTP real; encerrada somente sua árvore de processos ao final.
+- Confirmados parser Prometheus, deltas dos contadores/histograma, um worker
+  efetivo e a API pública para middleware na versão instalada.
+- Definidos abertura do handler em startup, fechamento em shutdown e logger
+  compartilhado pelo middleware no worker, sem abertura de arquivo no supervisor.
+- Registrada a investigação da interrupção em `phase-1-baseline.md`.
+
+### Arquivos alterados
+
+- `docs/av2/phase-1-baseline.md`: ambiente, comandos, resultados, integração e retomada.
+- `docs/av2/fases.md`: fase 1 concluída e checklist atualizado.
+- `docs/av2/escopo.md`: estado atual e referência ao baseline.
+- `docs/av2/checkpoints.md`: este registro.
+- Arquivos de ambiente e sondagens permanecem ignorados em `.venv/` e `.bentoml/`.
+
+### Comandos e resultados observados
+
+- `uv sync --frozen --python 3.12 --offline`: 81 pacotes conferidos, 12 ms.
+- `uv run --frozen pytest -vv -o faulthandler_timeout=45`: **41 passed in 47.25s**.
+- `uv run --frozen ruff check .`: **All checks passed!**.
+- CLI BentoML em `127.0.0.1:55506`: health 200, predict 200, perfil inválido 400,
+  JSON malformado 400, metrics 200. Porta liberada após encerramento.
+- Capturas de métricas: deltas por status para `/predict` de 1 (200), 2 (400) e 0
+  (500); delta agregado dos buckets `+Inf` igual a 3.
+- Sondagem do middleware: 200/400/400/500 observados, corpo preservado e rejeições
+  antes da inferência. O 500 foi injetado, e a falha de abertura no startup foi
+  simulada com `PermissionError`; testes permanentes pertencem à fase 2.
+
+### Decisões e desvios registrados
+
+- Usada porta livre em vez de 3000 para evitar colisão com serviços do usuário.
+- Usada saída verbosa e diagnóstico de espera do pytest na retomada, mantendo a
+  suíte completa e os critérios; as verificações pesadas passaram a ser sequenciais.
+- Distinguidos launcher de venv e interpretador filho ao contar workers no Windows:
+  dois processos com os mesmos argumentos não significam dois escritores.
+- Execuções interrompidas sem resultado final não foram contabilizadas como testes
+  aprovados. Os logs não permitem identificar a causa do travamento do PC.
+- Python ficou no temporário após erro de acesso ao renomear a instalação no
+  Desktop. Se o Windows removê-lo, será necessário recriar o ambiente.
+
+### Pendências e próxima ação
+
+- Fase 2: implementar JSONL append-only, captura/sanitização HTTP e testes permanentes.
+- Usar `workers=1` explicitamente ao integrar o logging, embora o default observado
+  já tenha resultado em um worker efetivo.
+- Preservar métricas nativas; `service_version=not available` não representa a versão
+  do modelo e não deve ser usado em lugar de `model_version` no rastro.
+- Docker, CI, carga e README continuam nas fases previstas. Nenhuma dessas fases
+  foi antecipada; não houve commit, push ou merge pelo agente.
 
 ## Modelo para os próximos checkpoints
 
