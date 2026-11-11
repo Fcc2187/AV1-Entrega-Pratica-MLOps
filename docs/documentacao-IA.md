@@ -170,4 +170,22 @@ grava o vídeo, confirma o cache e cria/envia `sr1` no prazo.
 - Fase 5: concluída; Docker validado localmente, justfile e CI criados.
 - Verificação atual: 41 testes passaram, Ruff não encontrou problemas e o health
   respondeu a partir do container.
-- Model Gate 2: trocar para GPT-5.6 Terra em MEDIUM/HIGH e responder `CONTINUAR`.
+- Model Gate 2: atendido pelo usuário com `CONTINUAR`.
+- Fase 6: concluída; README reproduzível, contrato escrito e caminhos local e
+  Docker validados com comandos reais.
+- Fase 7: concluída; evidências locais, roteiro de apresentação de 15 minutos e
+  roteiro de vídeo backup foram registrados. Nesta execução, 41 testes passaram,
+  Ruff ficou limpo e o daemon Docker estava indisponível para nova validação.
+- Model Gate 3: atendido com GPT-6 Astra/HIGH e `CONTINUAR`; a auditoria manteve o
+  escopo completo apesar da redução de esforço em relação ao plano original.
+- Fase 8: concluída em modo read-only; nenhum P0/P1 técnico foi encontrado. A
+  auditoria registrou apenas itens P2, incluindo a publicação Docker sem bind do
+  host em loopback.
+- Fase 9: não aplicável, pois não havia P0/P1 para corrigir. As ações de apresentação
+  e vídeo permanecem responsabilidades humanas previstas desde a Fase 0.
+- Model Gate 5: não aplicável.
+- Fase 10: concluída com GPT-5.6 Sol/HIGH, autorizado pelo usuário devido ao limite
+  de uso do Astra. Clone público, instalação frozen, lock offline, Ruff, 41 testes,
+  E2E offline, endpoints, artefato e CI foram verificados.
+- Estado técnico: `READY`. Restam revisão humana do commit, ensaio, vídeo backup,
+  submissão do link e criação/envio manual da tag `sr1` no prazo.

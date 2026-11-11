@@ -1,8 +1,8 @@
 {
   "age": 48,
   "education": "Doctorate",
-  "workclass": "Gig-platform",
-  "occupation": "Data-scientist",
+  "workclass": "Private",
+  "occupation": "Prof-specialty",
   "marital_status": "Divorced",
   "hours_per_week": 55
 }
