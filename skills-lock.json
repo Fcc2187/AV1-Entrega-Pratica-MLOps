@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "best-prompt-ever": {
+      "source": "lfelipearruda1/best-prompt-ever",
+      "sourceType": "github",
+      "skillPath": "skills/best-prompt-ever/SKILL.md",
+      "computedHash": "919f25a007fc9786d1b943e551a8f11f2327374de9b1e451ccebea4337e36375"
+    }
+  }
+}
