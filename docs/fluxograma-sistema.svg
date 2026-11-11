@@ -1,0 +1,145 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1120" viewBox="0 0 1400 1120" role="img" aria-labelledby="title desc">
+  <title id="title">Fluxograma da lógica do sistema CareerPath MLOps</title>
+  <desc id="desc">Fluxo de treinamento e inferência da API CareerPath, desde o dataset Adult até a resposta de predição.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#475569"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity=".12"/>
+    </filter>
+    <style>
+      .title { font: 700 30px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 16px Arial, sans-serif; fill: #475569; }
+      .section { font: 700 19px Arial, sans-serif; fill: #1e293b; }
+      .node-title { font: 700 16px Arial, sans-serif; fill: #0f172a; }
+      .node-text { font: 400 14px Arial, sans-serif; fill: #334155; }
+      .small { font: 400 13px Arial, sans-serif; fill: #475569; }
+      .line { stroke: #475569; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 8 7; }
+      .node { stroke-width: 2; rx: 14; filter: url(#shadow); }
+      .training { fill: #eff6ff; stroke: #3b82f6; }
+      .runtime { fill: #ecfdf5; stroke: #10b981; }
+      .decision { fill: #fff7ed; stroke: #f97316; }
+      .error { fill: #fef2f2; stroke: #ef4444; }
+      .output { fill: #f5f3ff; stroke: #8b5cf6; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="1120" fill="#ffffff"/>
+  <text x="700" y="48" text-anchor="middle" class="title">Lógica do sistema CareerPath MLOps</text>
+  <text x="700" y="76" text-anchor="middle" class="subtitle">Treinamento offline, carregamento seguro do modelo e inferência por API</text>
+
+  <rect x="45" y="105" width="1310" height="430" rx="20" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="75" y="140" class="section">1. Preparação e versionamento do modelo (offline)</text>
+
+  <rect x="85" y="185" width="220" height="105" class="node training"/>
+  <text x="195" y="216" text-anchor="middle" class="node-title">Dataset Adult</text>
+  <text x="195" y="241" text-anchor="middle" class="node-text">adult.data + adult.test</text>
+  <text x="195" y="263" text-anchor="middle" class="small">UCI Census Income</text>
+
+  <rect x="355" y="185" width="220" height="105" class="node training"/>
+  <text x="465" y="216" text-anchor="middle" class="node-title">Limpeza dos dados</text>
+  <text x="465" y="241" text-anchor="middle" class="node-text">Trim, missing e rótulos</text>
+  <text x="465" y="263" text-anchor="middle" class="small">Remove sobreposição train/test</text>
+
+  <rect x="625" y="185" width="220" height="105" class="node training"/>
+  <text x="735" y="216" text-anchor="middle" class="node-title">Pipeline sklearn</text>
+  <text x="735" y="241" text-anchor="middle" class="node-text">Imputação + escala</text>
+  <text x="735" y="263" text-anchor="middle" class="small">One-hot + regressão logística</text>
+
+  <rect x="895" y="185" width="220" height="105" class="node training"/>
+  <text x="1005" y="216" text-anchor="middle" class="node-title">Avaliação</text>
+  <text x="1005" y="241" text-anchor="middle" class="node-text">Métricas no conjunto de teste</text>
+  <text x="1005" y="263" text-anchor="middle" class="small">ROC AUC, F1, Brier e matriz</text>
+
+  <rect x="1165" y="185" width="150" height="105" class="node output"/>
+  <text x="1240" y="216" text-anchor="middle" class="node-title">Artefatos</text>
+  <text x="1240" y="241" text-anchor="middle" class="node-text">pipeline.pkl</text>
+  <text x="1240" y="263" text-anchor="middle" class="small">metadata.json</text>
+
+  <path d="M305 238 H355" class="line"/>
+  <path d="M575 238 H625" class="line"/>
+  <path d="M845 238 H895" class="line"/>
+  <path d="M1115 238 H1165" class="line"/>
+
+  <rect x="180" y="355" width="250" height="105" class="node training"/>
+  <text x="305" y="386" text-anchor="middle" class="node-title">Integridade e compatibilidade</text>
+  <text x="305" y="411" text-anchor="middle" class="node-text">SHA-256 do artefato</text>
+  <text x="305" y="433" text-anchor="middle" class="small">Versão do scikit-learn</text>
+
+  <rect x="505" y="355" width="250" height="105" class="node runtime"/>
+  <text x="630" y="386" text-anchor="middle" class="node-title">Inicialização do serviço</text>
+  <text x="630" y="411" text-anchor="middle" class="node-text">Carrega pipeline confiável</text>
+  <text x="630" y="433" text-anchor="middle" class="small">BentoML + Starlette</text>
+
+  <rect x="830" y="355" width="250" height="105" class="node output"/>
+  <text x="955" y="386" text-anchor="middle" class="node-title">Endpoints disponíveis</text>
+  <text x="955" y="411" text-anchor="middle" class="node-text">GET /health</text>
+  <text x="955" y="433" text-anchor="middle" class="small">POST /predict</text>
+
+  <path d="M1240 290 V325 H305 V355" class="line dashed"/>
+  <path d="M430 407 H505" class="line"/>
+  <path d="M755 407 H830" class="line"/>
+  <text x="774" y="392" class="small">se válido</text>
+  <path d="M1240 290 V325" class="line dashed"/>
+
+  <rect x="1110" y="355" width="190" height="105" class="node error"/>
+  <text x="1205" y="386" text-anchor="middle" class="node-title">Falha ao iniciar</text>
+  <text x="1205" y="411" text-anchor="middle" class="node-text">Hash ou versão</text>
+  <text x="1205" y="433" text-anchor="middle" class="small">incompatível</text>
+  <path d="M555 460 V490 H1205 V460" class="line dashed"/>
+
+  <rect x="45" y="570" width="1310" height="490" rx="20" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="75" y="605" class="section">2. Inferência por requisição</text>
+
+  <rect x="85" y="660" width="220" height="105" class="node runtime"/>
+  <text x="195" y="691" text-anchor="middle" class="node-title">Cliente</text>
+  <text x="195" y="716" text-anchor="middle" class="node-text">POST /predict</text>
+  <text x="195" y="738" text-anchor="middle" class="small">JSON com 6 atributos</text>
+
+  <rect x="355" y="660" width="220" height="105" class="node decision"/>
+  <text x="465" y="691" text-anchor="middle" class="node-title">Validação Pydantic</text>
+  <text x="465" y="716" text-anchor="middle" class="node-text">Tipos, faixas e categorias</text>
+  <text x="465" y="738" text-anchor="middle" class="small">Rejeita extras, &quot;?&quot; e inválidos</text>
+
+  <polygon points="735,650 835,712 735,775 635,712" class="node decision"/>
+  <text x="735" y="705" text-anchor="middle" class="node-title">Entrada válida?</text>
+
+  <rect x="895" y="660" width="220" height="105" class="node error"/>
+  <text x="1005" y="691" text-anchor="middle" class="node-title">HTTP 400</text>
+  <text x="1005" y="716" text-anchor="middle" class="node-text">Erro de validação</text>
+  <text x="1005" y="738" text-anchor="middle" class="small">Sem executar o modelo</text>
+
+  <rect x="625" y="850" width="220" height="105" class="node runtime"/>
+  <text x="735" y="881" text-anchor="middle" class="node-title">Pré-processamento</text>
+  <text x="735" y="906" text-anchor="middle" class="node-text">Monta DataFrame</text>
+  <text x="735" y="928" text-anchor="middle" class="small">Converte null para missing</text>
+
+  <rect x="895" y="850" width="220" height="105" class="node runtime"/>
+  <text x="1005" y="881" text-anchor="middle" class="node-title">Predição</text>
+  <text x="1005" y="906" text-anchor="middle" class="node-text">predict_proba(&gt;50K)</text>
+  <text x="1005" y="928" text-anchor="middle" class="small">Probabilidade entre 0 e 1</text>
+
+  <rect x="1165" y="850" width="150" height="105" class="node output"/>
+  <text x="1240" y="881" text-anchor="middle" class="node-title">HTTP 200</text>
+  <text x="1240" y="906" text-anchor="middle" class="node-text">Classe proxy</text>
+  <text x="1240" y="928" text-anchor="middle" class="small">probabilidade + versão</text>
+
+  <path d="M305 712 H355" class="line"/>
+  <path d="M575 712 H635" class="line"/>
+  <path d="M835 712 H895" class="line"/>
+  <text x="855" y="696" class="small">não</text>
+  <path d="M735 775 V850" class="line"/>
+  <text x="752" y="818" class="small">sim</text>
+  <path d="M845 902 H895" class="line"/>
+  <path d="M1115 902 H1165" class="line"/>
+
+  <rect x="85" y="850" width="430" height="105" class="node output"/>
+  <text x="300" y="881" text-anchor="middle" class="node-title">Regra de decisão</text>
+  <text x="300" y="906" text-anchor="middle" class="node-text">probabilidade &gt;= 0,5 → &gt;50K</text>
+  <text x="300" y="928" text-anchor="middle" class="small">caso contrário → &lt;=50K</text>
+  <path d="M735 955 V990 H300 V955" class="line dashed"/>
+
+  <text x="700" y="1092" text-anchor="middle" class="small">O resultado é um proxy histórico e deve apoiar revisão humana, nunca uma decisão automatizada sobre pessoas.</text>
+</svg>

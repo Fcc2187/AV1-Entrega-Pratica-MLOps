@@ -3,6 +3,20 @@
 Este histórico é da AV2. `docs/checkpoints.md` continua sendo o registro da AV1.
 Os resultados antigos não substituem verificações atuais.
 
+## Revisão de continuidade — 11/11/2026
+
+- Branch `av2` obtida de `origin/av2`; preservado trabalho do colega até `91610af`.
+- Skill de `.agents/skills/best-prompt-ever/` trazida da main no commit `28cfa08`;
+  entrada `.claude/skills/best-prompt-ever/` e `skills-lock.json` no commit `ed03246`.
+- Revisão documental e estática: [parecer](revisao-plano.md). Não foi executada
+  nova suíte de aplicação, servidor ou Docker nesta revisão.
+- Plano mantém fases 0–3 e acrescenta etapa R para entrevista da skill antes da
+  fase 4, cobrindo toda a continuação (fases 4–7), conforme esclarecimento do usuário. A entrevista ainda não aconteceu e nenhuma memória da skill foi criada.
+- Clarificados filtros de análise, critérios da planilha e limites das respostas
+  de erro registradas. README executável e carga permanecem pendências obrigatórias.
+- `docs/parte1-av2/README.md` aponta para o plano canônico existente em `docs/av2/`.
+- Próxima ação: aplicar a skill às fases 4–7 na etapa R; iniciar pela fase 4 e retomar a skill nas demais unidades quando houver lacunas relevantes.
+
 ## Preparação — elaboração do planejamento
 
 Data: 10/11/2026.

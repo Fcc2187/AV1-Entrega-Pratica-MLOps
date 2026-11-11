@@ -10,6 +10,10 @@
 
 **Spec:** [Escopo e decisões propostas](escopo.md). Ler também [checkpoints](checkpoints.md) antes de retomar.
 
+Revisão de continuidade em 11/11/2026: [parecer e cobertura do enunciado](revisao-plano.md).
+As fases 0–3 abaixo preservam resultados históricos do colega; esta revisão não os
+apresenta como nova execução. A próxima etapa é R, seguida da fase 4.
+
 ## Global Constraints
 
 - Trabalhar na branch existente `av2`; conferir Git e alterações do usuário antes de cada bloco.
@@ -59,12 +63,18 @@ Os caminhos abaixo são planejados. O estado executado de cada fase fica no chec
 | 1 | Verificar base, runtime e integração | Baseline atual e decisões confirmadas | Concluída |
 | 2 | Registrar entradas, saídas e falhas | JSONL append-only testado | Concluída |
 | 3 | Validar e interpretar `/metrics` | Endpoint real e guia de cálculos | Concluída |
+<<<<<<< HEAD
 | 4 | Gerar carga reproduzível | Script e demonstração controlada | Concluída |
 | 5 | Integrar Docker, CI e reinício | Persistência local verificada e integração configurada | Concluída com validação Docker pendente |
+=======
+| R | Testar best-prompt-ever na retomada | Prompt das fases 4–7 e avaliação da entrevista | Pendente |
+| 4 | Gerar carga reproduzível | Script e demonstração controlada | Pendente |
+| 5 | Integrar Docker, CI e reinício | Persistência e regressões verificadas | Pendente |
+>>>>>>> 51f3c202ebe8259e9f791c3e328731dce69db757
 | 6 | Documentar e coletar evidências | README e capturas reais | Pendente |
 | 7 | Auditar e encerrar | Matriz final e READY/NOT READY | Pendente |
 
-Ordem: `0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7`.
+Ordem: `0 -> 1 -> 2 -> 3 -> R -> 4 -> 5 -> 6 -> 7`.
 Ao concluir cada fase, registrar checkpoint. Pausas técnicas devem indicar a causa
 concreta; não há troca obrigatória de modelo. O usuário pode pedir execução por fase.
 
@@ -164,6 +174,29 @@ Concluída em 10/11/2026: E2E direcionado passou em 17,82 s; suíte completa com
 59 testes passou em 23,19 s; Ruff aprovado. Exemplo Python do guia executado com
 amostra real e log vazio; ajuste de zero tráfego encontrado na revisão foi corrigido.
 
+## Etapa R — aplicar best-prompt-ever ao restante do projeto
+
+**Ler:** `.agents/skills/best-prompt-ever/SKILL.md` e referências exigidas pela skill;
+`escopo.md`, este plano, checkpoints, código atual e testes das fases restantes.
+**Produz:** prompt na conversa para conduzir as fases 4–7; avaliação breve
+no checkpoint após a entrevista. Não reabrir nem reimplementar as fases concluídas.
+
+- [ ] Invocar explicitamente `best-prompt-ever` com o pedido: “Detalhe um prompt para concluir as fases 4–7 de docs/av2/fases.md: carga, integração e persistência, documentação e material de análise, auditoria e correções finais; preserve as fases 0–3 e o contrato atual”.
+- [ ] Fazer reconhecimento somente de leitura; consultar `.best-prompt-ever/context.md` se existir e verificar suas informações no código. Não abrir segredos.
+- [ ] Usar a entrevista para resolver somente lacunas reais, com opções fundamentadas no repositório. Informar que `av2` já foi escolhida pelo usuário; não perguntar de novo nem criar outra branch sem motivo.
+- [ ] Apresentar o painel de cobertura e o prompt em português, com objetivo, arquivos, padrões, sequência e cenários numerados. Separar as unidades das fases 4–7, suas dependências e evidências; referenciar os comandos frozen e os contratos existentes.
+- [ ] Incluir na validação: mesma seed produz mesma carga; 100 pedidos com intervalo 10 produzem 90 sucessos e 10 rejeições; falhas de rede ficam separadas; `shifted` respeita o schema; log e métricas crescem conforme os pedidos observados.
+- [ ] Cobrir também persistência e regressões da fase 5; reprodução apenas pelo README, cálculos e decisão sobre planilha da fase 6; matriz de requisitos, correções e evidências de READY/NOT READY da fase 7.
+- [ ] Antes de cada fase restante, conferir o prompt contra o estado atual e reaproveitar decisões válidas. Retomar a skill para detalhar ou revisar a unidade quando houver lacunas relevantes ou mudança de escopo; não repetir a entrevista inteira nem perguntar o que já está decidido. A skill acompanha todo o restante do projeto, não se encerra na geração de carga.
+- [ ] Entregar o prompt na conversa, sem gravá-lo automaticamente. A entrevista não altera código, documentos, branches ou commits. A implementação começa após a confirmação de execução prevista pela skill.
+- [ ] Apresentar proposta de memória separadamente e gravar `.best-prompt-ever/context.md` somente se o usuário autorizar especificamente. A autorização de execução não autoriza a memória.
+- [ ] Após encerrar a entrevista, registrar no checkpoint: lacunas descobertas, perguntas redundantes, correções do usuário e se o prompt continha arquivos e evidências suficientes. Não declarar a skill testada apenas por estar instalada.
+
+**Aceite:** prompt executável e revisado para as fases 4–7; entrevista respeitou leitura
+somente e não repetiu decisões existentes. A revisão atual prepara esse teste, mas
+não conta como a realização da entrevista. Usar `superpowers:executing-plans` para
+executar a continuação; este plano não exige delegação de implementação.
+
 ## Fase 4 — carga e suficiência dos dados
 
 **Criar:** `scripts/generate_load.py`, `tests/test_generate_load.py`.
@@ -175,6 +208,7 @@ amostra real e log vazio; ajuste de zero tráfego encontrado na revisão foi cor
 - `--scenario shifted` desloca somente idades e horas semanais, respeitando os limites do schema. `--invalid-every 0` desliga erros; com 10, cada décimo pedido recebe `age=-1`.
 - Resumo em stdout: enviados, 2xx, 4xx, 5xx e falhas de rede. Exit code 0 para resultados esperados; não zero para rede, 5xx ou resposta inesperada. Timeout por pedido: 10 s.
 
+<<<<<<< HEAD
 - [x] Testar determinismo, limites de `Profile`, deslocamento, argumentos e contabilização com HTTP simulado.
 - [x] Observar a falha inicial pela ausência do gerador e as falhas reproduzidas durante a revisão.
 - [x] Implementar gerador e CLI com biblioteca padrão, usando perfis sintéticos dos exemplos.
@@ -184,6 +218,18 @@ amostra real e log vazio; ajuste de zero tráfego encontrado na revisão foi cor
 - [x] Conferir tipos e variação com pandas e excluir eventos inválidos das distribuições de features.
 - [x] Registrar a reconstrução da referência Adult e das probabilidades no [guia de carga](load.md).
 - [x] Registrar comandos, resultados e limitações no checkpoint.
+=======
+- [ ] Criar testes que falham para determinismo por seed, limites de `Profile`, cenário deslocado, `count > 0`, intervalos inválidos e contabilização de respostas/rede com HTTP simulado.
+- [ ] Executar `uv run --frozen pytest -q tests/test_generate_load.py` e confirmar a falha esperada.
+- [ ] Implementar gerador e CLI com biblioteca padrão, sem banco, treinamento ou dependência de dados baixados. Não afirmar que o cenário sintético representa a população Adult.
+- [ ] Executar testes direcionados e Ruff e confirmar sucesso.
+- [ ] Com servidor real, coletar metrics antes/depois de 100 pedidos baseline e repetir 100 shifted; executar também uma carga curta sem erros.
+- [ ] Conferir deltas no JSONL: 90 sucessos e 10 rejeições por lote de 100 com configuração acima, se não houver falhas inesperadas. Não contar erros esperados como exemplos de falha do servidor.
+- [ ] Carregar as linhas com pandas já instalado e conferir tipos de idade, horas, probabilidade e latência, variação dos valores e exclusão de eventos inválidos das distribuições de features.
+- [ ] Para distribuições de entrada/saída, selecionar `outcome=success` e `input_capture=complete`; preservar nulos como categoria própria nas frequências e excluir ausentes das análises numéricas. Não confundir falhas de validação com drift.
+- [ ] Registrar procedimento da referência Adult e da referência de probabilidades conforme o escopo, sem precisar executar KS/PSI ou baixar a base para gerar carga.
+- [ ] Registrar comandos, contagens reais e limitações no checkpoint.
+>>>>>>> 51f3c202ebe8259e9f791c3e328731dce69db757
 
 **Aceite:** professor consegue gerar tráfego variado e erros controlados; valores
 individuais de entrada e saída podem ser recuperados sem parsing de texto livre.
@@ -226,6 +272,7 @@ no serviço local. A execução Docker e a CI remota aguardam verificação.
 - [ ] Coletar evidências reais: ambiente, health, predict, erro, amostra JSONL, métricas antes/depois, carga, testes e persistência. Registrar data, comando, resultado e versão do modelo; não inventar números.
 - [ ] Preparar roteiro curto de demonstração: subir, observar arquivo, gerar baseline, gerar shifted, mostrar erro, comparar metrics e explicar retenção. Duração fica a cargo da orientação posterior do professor.
 - [ ] Opcional recomendado: produzir planilha com latências reais, quartis, boxplot, deltas dos buckets e taxa de erros. Se omitida, texto deve continuar suficiente; não criar planilha vazia para simular entrega.
+- [ ] Se produzir a planilha, incluir abas de dados individuais, snapshots identificados por instância/horário e cálculos; mostrar histograma, boxplot e taxas 4xx+5xx e 5xx. Validar fórmulas, unidades, amostra vazia e janela com reset. Manter o mesmo método de quartis do guia e explicar eventuais diferenças do aplicativo. Na omissão, registrar a decisão e manter exemplo completo no texto.
 - [ ] Atualizar declaração de uso de IA e checkpoint com participação e revisão efetivamente realizadas.
 
 **Aceite:** outra pessoa, seguindo apenas o README, consegue produzir e interpretar
@@ -238,6 +285,7 @@ o rastro. Capturas e documentação usam o mesmo contrato da aplicação.
 - [ ] Começar pela leitura, sem alterar código: confrontar cada linha da matriz do escopo com arquivo, comando e evidência correspondente.
 - [ ] Classificar achados: P0 impede subir/demonstrar; P1 deixa requisito aplicável sem cobertura ou produz dados incorretos; P2 é melhoria não obrigatória.
 - [ ] Verificar especificamente entradas e saídas, append, microssegundos/fuso, erros antes da função, sanitização, métricas reais, suficiência analítica, referência e retenção.
+- [ ] Auditar a rastreabilidade das respostas 400/500: hoje `output=null` e `error_type` é genérico. Confirmar que o registro sanitizado permite interpretar o desfecho; se insuficiente, planejar e testar resumo estruturado do erro (categoria e campos afetados), sem payload bruto ou detalhes internos. Manter explícita essa limitação no dicionário do log; não afirmar que o corpo completo das respostas de erro está salvo.
 - [ ] Corrigir P0/P1 dentro do escopo e executar verificações afetadas. Não implementar extras para aumentar o tamanho da entrega.
 - [ ] Repetir o caminho principal do README em ambiente limpo quando disponível; executar suíte completa e Ruff após a última mudança de código.
 - [ ] Conferir `git diff --check`, arquivos gerados, links locais e ausência de dados/segredos indevidos nas evidências.

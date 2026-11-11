@@ -62,12 +62,31 @@ def test_predict_accepts_unknown_and_nullable_categories(client: TestClient) -> 
     response = client.post(
         "/predict",
         json=valid_profile(
-            workclass="Gig-platform",
+            workclass=None,
             occupation=None,
         ),
     )
 
     assert response.status_code == 200
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "valid_option"),
+    [
+        ("workclass", "Gig-platform", "Private"),
+        ("education", "Bootcamp", "Bachelors"),
+        ("marital_status", "Engaged", "Never-married"),
+        ("occupation", "Data-scientist", "Tech-support"),
+    ],
+)
+def test_predict_rejects_unknown_categories_with_valid_options(
+    client: TestClient, field: str, value: str, valid_option: str
+) -> None:
+    response = client.post("/predict", json=valid_profile(**{field: value}))
+
+    assert response.status_code == 400
+    assert field in response.text
+    assert valid_option in response.text
 
 
 @pytest.mark.parametrize(
