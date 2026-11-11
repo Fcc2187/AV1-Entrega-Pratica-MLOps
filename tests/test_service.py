@@ -58,7 +58,7 @@ def test_predict_accepts_root_profile_and_returns_contract(client: TestClient) -
     assert body["model_version"] == "adult-income-v1"
 
 
-def test_predict_accepts_unknown_and_nullable_categories(client: TestClient) -> None:
+def test_predict_accepts_nullable_categories(client: TestClient) -> None:
     response = client.post(
         "/predict",
         json=valid_profile(

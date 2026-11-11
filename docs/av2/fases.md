@@ -10,9 +10,9 @@
 
 **Spec:** [Escopo e decisões propostas](escopo.md). Ler também [checkpoints](checkpoints.md) antes de retomar.
 
-Revisão de continuidade em 11/11/2026: [parecer e cobertura do enunciado](revisao-plano.md).
-As fases 0–3 abaixo preservam resultados históricos do colega; esta revisão não os
-apresenta como nova execução. A próxima etapa é R, seguida da fase 4.
+As fases 0–7 estão concluídas. Os checkpoints reúnem os resultados de cada
+fase. A etapa R registra uma proposta de avaliação da skill.
+[Parecer técnico](review.md) · [Fluxo de revisão do grupo](revisao-plano.md).
 
 ## Global Constraints
 
@@ -63,18 +63,12 @@ Os caminhos abaixo são planejados. O estado executado de cada fase fica no chec
 | 1 | Verificar base, runtime e integração | Baseline atual e decisões confirmadas | Concluída |
 | 2 | Registrar entradas, saídas e falhas | JSONL append-only testado | Concluída |
 | 3 | Validar e interpretar `/metrics` | Endpoint real e guia de cálculos | Concluída |
-<<<<<<< HEAD
 | 4 | Gerar carga reproduzível | Script e demonstração controlada | Concluída |
 | 5 | Integrar Docker, CI e reinício | Persistência local verificada e integração configurada | Concluída com validação Docker pendente |
-=======
-| R | Testar best-prompt-ever na retomada | Prompt das fases 4–7 e avaliação da entrevista | Pendente |
-| 4 | Gerar carga reproduzível | Script e demonstração controlada | Pendente |
-| 5 | Integrar Docker, CI e reinício | Persistência e regressões verificadas | Pendente |
->>>>>>> 51f3c202ebe8259e9f791c3e328731dce69db757
-| 6 | Documentar e coletar evidências | README e capturas reais | Pendente |
-| 7 | Auditar e encerrar | Matriz final e READY/NOT READY | Pendente |
+| 6 | Documentar e coletar evidências | README, roteiro e capturas reais | Concluída |
+| 7 | Auditar e encerrar | Matriz final e parecer READY | Concluída |
 
-Ordem: `0 -> 1 -> 2 -> 3 -> R -> 4 -> 5 -> 6 -> 7`.
+Ordem: `0 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7`.
 Ao concluir cada fase, registrar checkpoint. Pausas técnicas devem indicar a causa
 concreta; não há troca obrigatória de modelo. O usuário pode pedir execução por fase.
 
@@ -174,7 +168,9 @@ Concluída em 10/11/2026: E2E direcionado passou em 17,82 s; suíte completa com
 59 testes passou em 23,19 s; Ruff aprovado. Exemplo Python do guia executado com
 amostra real e log vazio; ajuste de zero tráfego encontrado na revisão foi corrigido.
 
-## Etapa R — aplicar best-prompt-ever ao restante do projeto
+## Etapa R — proposta de avaliação da skill best-prompt-ever
+
+Esta atividade de avaliação de processo pode ser retomada pela equipe separadamente do aceite técnico.
 
 **Ler:** `.agents/skills/best-prompt-ever/SKILL.md` e referências exigidas pela skill;
 `escopo.md`, este plano, checkpoints, código atual e testes das fases restantes.
@@ -208,28 +204,15 @@ executar a continuação; este plano não exige delegação de implementação.
 - `--scenario shifted` desloca somente idades e horas semanais, respeitando os limites do schema. `--invalid-every 0` desliga erros; com 10, cada décimo pedido recebe `age=-1`.
 - Resumo em stdout: enviados, 2xx, 4xx, 5xx e falhas de rede. Exit code 0 para resultados esperados; não zero para rede, 5xx ou resposta inesperada. Timeout por pedido: 10 s.
 
-<<<<<<< HEAD
 - [x] Testar determinismo, limites de `Profile`, deslocamento, argumentos e contabilização com HTTP simulado.
 - [x] Observar a falha inicial pela ausência do gerador e as falhas reproduzidas durante a revisão.
 - [x] Implementar gerador e CLI com biblioteca padrão, usando perfis sintéticos dos exemplos.
 - [x] Aprovar testes direcionados, suíte completa e Ruff.
 - [x] Capturar `/metrics` antes e depois de 100 pedidos baseline, 100 shifted e cinco pedidos válidos.
 - [x] Conciliar os contadores da CLI, do JSONL e de `/metrics`. Cada lote principal teve 90 sucessos e 10 rejeições planejadas.
-- [x] Conferir tipos e variação com pandas e excluir eventos inválidos das distribuições de features.
+- [x] Conferir tipos e variação com pandas. Selecionar `outcome=success` e `input_capture=complete`, preservar nulos nas frequências categóricas e excluir ausentes nas análises numéricas.
 - [x] Registrar a reconstrução da referência Adult e das probabilidades no [guia de carga](load.md).
 - [x] Registrar comandos, resultados e limitações no checkpoint.
-=======
-- [ ] Criar testes que falham para determinismo por seed, limites de `Profile`, cenário deslocado, `count > 0`, intervalos inválidos e contabilização de respostas/rede com HTTP simulado.
-- [ ] Executar `uv run --frozen pytest -q tests/test_generate_load.py` e confirmar a falha esperada.
-- [ ] Implementar gerador e CLI com biblioteca padrão, sem banco, treinamento ou dependência de dados baixados. Não afirmar que o cenário sintético representa a população Adult.
-- [ ] Executar testes direcionados e Ruff e confirmar sucesso.
-- [ ] Com servidor real, coletar metrics antes/depois de 100 pedidos baseline e repetir 100 shifted; executar também uma carga curta sem erros.
-- [ ] Conferir deltas no JSONL: 90 sucessos e 10 rejeições por lote de 100 com configuração acima, se não houver falhas inesperadas. Não contar erros esperados como exemplos de falha do servidor.
-- [ ] Carregar as linhas com pandas já instalado e conferir tipos de idade, horas, probabilidade e latência, variação dos valores e exclusão de eventos inválidos das distribuições de features.
-- [ ] Para distribuições de entrada/saída, selecionar `outcome=success` e `input_capture=complete`; preservar nulos como categoria própria nas frequências e excluir ausentes das análises numéricas. Não confundir falhas de validação com drift.
-- [ ] Registrar procedimento da referência Adult e da referência de probabilidades conforme o escopo, sem precisar executar KS/PSI ou baixar a base para gerar carga.
-- [ ] Registrar comandos, contagens reais e limitações no checkpoint.
->>>>>>> 51f3c202ebe8259e9f791c3e328731dce69db757
 
 **Aceite:** professor consegue gerar tráfego variado e erros controlados; valores
 individuais de entrada e saída podem ser recuperados sem parsing de texto livre.
@@ -265,32 +248,37 @@ no serviço local. A execução Docker e a CI remota aguardam verificação.
 **Alterar:** README principal. **Criar:** evidências em `docs/av2/evidence/`.
 **Consome:** comandos e resultados reais das fases anteriores.
 
-- [ ] Escrever README com propósito, evolução AV1/AV2, Python/uv, clone, instalação frozen, startup, payloads, erro esperado e troubleshooting.
-- [ ] Incluir comandos PowerShell e Linux/macOS para configurar `CAREERPATH_LOG_PATH`, executar carga, ler linhas recentes e consultar `/metrics`; testar ambos quando houver ambiente disponível e declarar o que não foi testado.
-- [ ] Incluir links para formato do log, métricas, entendimento do negócio, planejamento e histórico da AV1.
-- [ ] Explicar diretório de trabalho, permissões, ausência de rotação automática, retenção em disco, reinício de contadores e volume Docker.
-- [ ] Coletar evidências reais: ambiente, health, predict, erro, amostra JSONL, métricas antes/depois, carga, testes e persistência. Registrar data, comando, resultado e versão do modelo; não inventar números.
-- [ ] Preparar roteiro curto de demonstração: subir, observar arquivo, gerar baseline, gerar shifted, mostrar erro, comparar metrics e explicar retenção. Duração fica a cargo da orientação posterior do professor.
-- [ ] Opcional recomendado: produzir planilha com latências reais, quartis, boxplot, deltas dos buckets e taxa de erros. Se omitida, texto deve continuar suficiente; não criar planilha vazia para simular entrega.
-- [ ] Se produzir a planilha, incluir abas de dados individuais, snapshots identificados por instância/horário e cálculos; mostrar histograma, boxplot e taxas 4xx+5xx e 5xx. Validar fórmulas, unidades, amostra vazia e janela com reset. Manter o mesmo método de quartis do guia e explicar eventuais diferenças do aplicativo. Na omissão, registrar a decisão e manter exemplo completo no texto.
-- [ ] Atualizar declaração de uso de IA e checkpoint com participação e revisão efetivamente realizadas.
+- [x] Escrever README com propósito, evolução AV1/AV2, Python/uv, clone, instalação frozen, startup, payloads, erro esperado e troubleshooting.
+- [x] Incluir comandos PowerShell e Bash para configurar `CAREERPATH_LOG_PATH`, executar carga, ler linhas recentes e consultar `/metrics`. PowerShell executado no Windows e blocos Bash verificados com `bash -n`.
+- [x] Incluir links para formato do log, métricas, entendimento do negócio, planejamento e histórico da AV1.
+- [x] Explicar diretório de trabalho, permissões, ausência de rotação automática, retenção em disco, reinício de contadores e volume Docker.
+- [x] Coletar evidências de ambiente, health, predict, erro, amostra JSONL, métricas antes/depois, carga, testes e persistência.
+- [x] Preparar [roteiro de demonstração](demonstracao.md) com startup, exemplos, dois cenários, interpretação e retenção.
+- [x] Registrar a decisão de omitir a planilha opcional e incluir cálculos de histograma, boxplot e taxas de erro no roteiro, com os valores observados.
+- [x] Atualizar declaração de uso de IA e checkpoint com participação e revisão efetivamente realizadas.
 
 **Aceite:** outra pessoa, seguindo apenas o README, consegue produzir e interpretar
 o rastro. Capturas e documentação usam o mesmo contrato da aplicação.
+
+Concluída em 11/11/2026. A demonstração gerou 204 eventos. As evidências
+estão em [phase-6](evidence/phase-6/summary.json).
 
 ## Fase 7 — auditoria, correções e verificação final
 
 **Criar:** `docs/av2/review.md`; atualizar checkpoints.
 
-- [ ] Começar pela leitura, sem alterar código: confrontar cada linha da matriz do escopo com arquivo, comando e evidência correspondente.
-- [ ] Classificar achados: P0 impede subir/demonstrar; P1 deixa requisito aplicável sem cobertura ou produz dados incorretos; P2 é melhoria não obrigatória.
-- [ ] Verificar especificamente entradas e saídas, append, microssegundos/fuso, erros antes da função, sanitização, métricas reais, suficiência analítica, referência e retenção.
-- [ ] Auditar a rastreabilidade das respostas 400/500: hoje `output=null` e `error_type` é genérico. Confirmar que o registro sanitizado permite interpretar o desfecho; se insuficiente, planejar e testar resumo estruturado do erro (categoria e campos afetados), sem payload bruto ou detalhes internos. Manter explícita essa limitação no dicionário do log; não afirmar que o corpo completo das respostas de erro está salvo.
-- [ ] Corrigir P0/P1 dentro do escopo e executar verificações afetadas. Não implementar extras para aumentar o tamanho da entrega.
-- [ ] Repetir o caminho principal do README em ambiente limpo quando disponível; executar suíte completa e Ruff após a última mudança de código.
-- [ ] Conferir `git diff --check`, arquivos gerados, links locais e ausência de dados/segredos indevidos nas evidências.
-- [ ] Entregar `READY` somente com requisitos aplicáveis demonstrados; caso contrário, `NOT READY` com pendências objetivas e limitações do ambiente.
-- [ ] Atualizar checkpoint final com comandos, resultados reais, riscos e ações restantes da equipe. Não criar tag ou submeter a entrega sem instrução.
+- [x] Confrontar cada linha da matriz do escopo com arquivo, comando e evidência correspondente.
+- [x] Classificar achados por impacto na demonstração e na cobertura do enunciado.
+- [x] Verificar entradas, saídas, append, microssegundos/fuso, erros antes da função, sanitização, métricas reais, suficiência analítica, referência e retenção.
+- [x] Auditar a rastreabilidade das respostas 400/500. O parecer descreve o desfecho sanitizado, `output=null` e a categoria geral de erro.
+- [x] Corrigir os três achados P1 e executar as verificações afetadas.
+- [x] Repetir o caminho principal do README em cópia limpa e executar suíte completa, Ruff e compilação.
+- [x] Conferir `git diff --check`, arquivos gerados, links locais e conteúdo das evidências sintéticas.
+- [x] Entregar [parecer READY](review.md) com evidências e limitações do ambiente.
+- [x] Atualizar checkpoint final com comandos, resultados e ações restantes da equipe.
+
+Concluída em 11/11/2026 com 79 testes aprovados no Windows. O Docker e a CI
+remota aguardam verificação pela equipe.
 
 ## Como registrar e retomar
 

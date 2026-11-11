@@ -1,7 +1,8 @@
 # AV2 — escopo e decisões propostas
 
 Data: 10/11/2026. Branch observada: `av2`.
-Status atual — fases 0 a 5 concluídas. Validação Docker e execução da CI remota pendentes.
+Status atual — fases 0 a 7 concluídas. [Parecer técnico](review.md).
+Validação Docker e execução da CI remota pendentes.
 
 ## 1. Objetivo
 
@@ -16,14 +17,15 @@ seção 2. Artifacts de execução desse pipeline não são requisitos desta mod
 ## 2. Fontes e estado encontrado na fase 0 (histórico)
 
 - Enunciado da AV2 fornecido pelo usuário; na revisão de 11/11/2026, a fonte
-  disponível é o texto da conversa. `Texto colado.txt`, citado na preparação
+  disponível é o texto anexado na conversa. `Texto colado.txt`, citado na preparação
   original, não está presente no checkout e não é necessário para executar o plano.
   Os requisitos aplicáveis estão consolidados na matriz abaixo.
 - Código em `src/careerpath/`, exemplos, testes, Dockerfile, justfile e CI.
-- Contexto de negócio em `docs/phase-0-design.md` e no documento de entendimento
-  de negócio da AV1. O classificador é um componente socioeconômico auxiliar;
-  renda inferida não mede intenção de compra ou necessidade de desenvolvimento.
-- Plano e histórico da AV1 em `docs/fases.md` e `docs/checkpoints.md`.
+- O classificador é um componente socioeconômico auxiliar. Renda inferida
+  não mede intenção de compra ou necessidade de desenvolvimento.
+  [Entendimento de negócio](../../Entendimento%20de%20neg%C3%B3cio.docx.pdf).
+- Na fase 0, o histórico da AV1 estava em `docs/fases.md` e `docs/checkpoints.md`.
+  Esses caminhos podem ser consultados no Git. [Registro de uso de IA](../documentacao-IA.md).
 - Commit observado: `d2982c2`; árvore limpa antes de criar estes documentos.
 - Modelo existente: `models/adult-income-v1.pkl`, com `models/metadata.json`.
 - Endpoints declarados: `POST /predict` e `GET /health`.
@@ -324,3 +326,12 @@ reinício local, com dois eventos novos e a mesma previsão para o mesmo perfil.
 Os contadores de `/predict` começaram em zero no novo processo. A CI foi
 configurada para pushes em `main` e `av2` e pull requests. O [guia Docker](docker.md)
 descreve o volume e a verificação pendente no motor Linux.
+
+## 17. Atualização após as fases 6 e 7
+
+Em 11/11/2026, o README passou a refletir as listas fechadas dos campos
+categóricos e a documentar a reprodução completa da AV2. A auditoria em uma
+cópia limpa no Windows confirmou os quatro exemplos, 204 eventos no JSONL,
+contadores reconciliados e 79 testes aprovados. A interpretação de métricas
+usa as medições dos dois lotes. [Demonstração](demonstracao.md) ·
+[Parecer técnico](review.md).

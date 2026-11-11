@@ -1,0 +1,412 @@
+{
+  "timestamp_utc": "2026-11-11T16:52:51+00:00",
+  "environment": {
+    "os": "Windows",
+    "python": "3.12.14",
+    "bentoml": "1.4.39",
+    "uv": "uv 0.12.5 (210d1f678 2026-08-14 x86_64-pc-windows-msvc)"
+  },
+  "git_base": "2dbf442",
+  "candidate": "copia limpa dos arquivos de trabalho",
+  "health": {
+    "status": 200,
+    "response": {
+      "status": "ok",
+      "model_version": "adult-income-v1"
+    }
+  },
+  "examples": {
+    "case-1": {
+      "status": 200,
+      "response": {
+        "income_class_proxy": "<=50K",
+        "probability_above_50k": 0.13588024571339077,
+        "model_version": "adult-income-v1"
+      }
+    },
+    "case-2": {
+      "status": 200,
+      "response": {
+        "income_class_proxy": ">50K",
+        "probability_above_50k": 0.5627666858360675,
+        "model_version": "adult-income-v1"
+      }
+    },
+    "case-3": {
+      "status": 200,
+      "response": {
+        "income_class_proxy": "<=50K",
+        "probability_above_50k": 0.01841773201019456,
+        "model_version": "adult-income-v1"
+      }
+    },
+    "invalid": {
+      "status": 400,
+      "response": {
+        "error": "1 validation error for ProfileIODescriptor",
+        "detail": [
+          {
+            "type": "greater_than_equal",
+            "loc": [
+              "age"
+            ],
+            "msg": "Input should be greater than or equal to 17",
+            "url": "https://errors.pydantic.dev/2.13/v/greater_than_equal"
+          }
+        ]
+      }
+    }
+  },
+  "batches": {
+    "baseline": {
+      "cli": {
+        "scenario": "baseline",
+        "seed": 42,
+        "invalid_every": 10,
+        "sent": 100,
+        "2xx": 90,
+        "4xx": 10,
+        "5xx": 0,
+        "other_status": 0,
+        "network_errors": 0,
+        "unexpected": 0
+      },
+      "jsonl_events": 100,
+      "counter_snapshots": {
+        "200": {
+          "before": 3,
+          "after": 93
+        },
+        "400": {
+          "before": 1,
+          "after": 11
+        },
+        "500": {
+          "before": 0,
+          "after": 0
+        }
+      },
+      "http_error_rate": 0.1,
+      "server_error_rate": 0.0,
+      "histogram": {
+        "count": [
+          4,
+          104
+        ],
+        "sum_seconds": [
+          0.12180819999775849,
+          1.1242527999711456
+        ],
+        "buckets": [
+          {
+            "le_seconds": "0.005",
+            "before": 0,
+            "after": 7,
+            "frequency": 7
+          },
+          {
+            "le_seconds": "0.01",
+            "before": 2,
+            "after": 66,
+            "frequency": 57
+          },
+          {
+            "le_seconds": "0.025",
+            "before": 3,
+            "after": 102,
+            "frequency": 35
+          },
+          {
+            "le_seconds": "0.05",
+            "before": 3,
+            "after": 102,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "0.1",
+            "before": 4,
+            "after": 104,
+            "frequency": 1
+          },
+          {
+            "le_seconds": "0.25",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "0.5",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "1.0",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "2.5",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "5.0",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "10.0",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "30.0",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "60.0",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "120.0",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "180.0",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "+Inf",
+            "before": 4,
+            "after": 104,
+            "frequency": 0
+          }
+        ]
+      },
+      "boxplot_ms": {
+        "q1": 8.256149998487672,
+        "median": 9.435300002223812,
+        "q3": 10.560949995124247,
+        "whiskers": [
+          4.935099990689196,
+          12.97139999223873
+        ],
+        "outliers": 9
+      },
+      "distribution_rows": 90,
+      "business_medians": {
+        "input.age": 37.0,
+        "input.hours_per_week": 36.0,
+        "output.probability_above_50k": 0.1281911202034395
+      }
+    },
+    "shifted": {
+      "cli": {
+        "scenario": "shifted",
+        "seed": 42,
+        "invalid_every": 10,
+        "sent": 100,
+        "2xx": 90,
+        "4xx": 10,
+        "5xx": 0,
+        "other_status": 0,
+        "network_errors": 0,
+        "unexpected": 0
+      },
+      "jsonl_events": 100,
+      "counter_snapshots": {
+        "200": {
+          "before": 93,
+          "after": 183
+        },
+        "400": {
+          "before": 11,
+          "after": 21
+        },
+        "500": {
+          "before": 0,
+          "after": 0
+        }
+      },
+      "http_error_rate": 0.1,
+      "server_error_rate": 0.0,
+      "histogram": {
+        "count": [
+          104,
+          204
+        ],
+        "sum_seconds": [
+          1.1242527999711456,
+          2.0499168999522226
+        ],
+        "buckets": [
+          {
+            "le_seconds": "0.005",
+            "before": 7,
+            "after": 13,
+            "frequency": 6
+          },
+          {
+            "le_seconds": "0.01",
+            "before": 66,
+            "after": 134,
+            "frequency": 62
+          },
+          {
+            "le_seconds": "0.025",
+            "before": 102,
+            "after": 202,
+            "frequency": 32
+          },
+          {
+            "le_seconds": "0.05",
+            "before": 102,
+            "after": 202,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "0.1",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "0.25",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "0.5",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "1.0",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "2.5",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "5.0",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "10.0",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "30.0",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "60.0",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "120.0",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "180.0",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          },
+          {
+            "le_seconds": "+Inf",
+            "before": 104,
+            "after": 204,
+            "frequency": 0
+          }
+        ]
+      },
+      "boxplot_ms": {
+        "q1": 8.483049998176284,
+        "median": 9.278599995013792,
+        "q3": 10.267400000884663,
+        "whiskers": [
+          6.226800003787503,
+          12.804000012692995
+        ],
+        "outliers": 12
+      },
+      "distribution_rows": 90,
+      "business_medians": {
+        "input.age": 49.0,
+        "input.hours_per_week": 48.0,
+        "output.probability_above_50k": 0.23096313343926164
+      }
+    }
+  },
+  "total_jsonl_events": 204,
+  "paired_shift": {
+    "age": 12,
+    "hours_per_week": 12,
+    "categorical_fields_equal": true
+  },
+  "restart_e2e": [
+    {
+      "cycle": 0,
+      "initial_predict_count": 0,
+      "preserved_log_bytes": 0,
+      "appended_events": 2,
+      "counter_deltas": {
+        "200": 1.0,
+        "400": 1.0,
+        "500": 0.0
+      },
+      "count": 2,
+      "duration_sum_seconds": 0.3128115000145044,
+      "mean_latency_ms": 156.4057500072522,
+      "http_error_percent": 50.0,
+      "server_error_percent": 0.0
+    },
+    {
+      "cycle": 1,
+      "initial_predict_count": 0,
+      "preserved_log_bytes": 1130,
+      "appended_events": 2,
+      "counter_deltas": {
+        "200": 1.0,
+        "400": 1.0,
+        "500": 0.0
+      },
+      "count": 2,
+      "duration_sum_seconds": 0.09981129999505356,
+      "mean_latency_ms": 49.90564999752678,
+      "http_error_percent": 50.0,
+      "server_error_percent": 0.0
+    }
+  ]
+}

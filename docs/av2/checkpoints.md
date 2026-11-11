@@ -1,7 +1,7 @@
 # AV2 — checkpoints
 
-Este histórico é da AV2. `docs/checkpoints.md` continua sendo o registro da AV1.
-Os resultados antigos não substituem verificações atuais.
+Este histórico é da AV2. Os checkpoints originais da AV1 podem ser consultados
+no histórico do Git. [Registro de uso de IA da AV1](../documentacao-IA.md).
 
 ## Revisão de continuidade — 11/11/2026
 
@@ -14,8 +14,8 @@ Os resultados antigos não substituem verificações atuais.
   fase 4, cobrindo toda a continuação (fases 4–7), conforme esclarecimento do usuário. A entrevista ainda não aconteceu e nenhuma memória da skill foi criada.
 - Clarificados filtros de análise, critérios da planilha e limites das respostas
   de erro registradas. README executável e carga permanecem pendências obrigatórias.
-- `docs/parte1-av2/README.md` aponta para o plano canônico existente em `docs/av2/`.
-- Próxima ação: aplicar a skill às fases 4–7 na etapa R; iniciar pela fase 4 e retomar a skill nas demais unidades quando houver lacunas relevantes.
+- O [plano canônico](fases.md) está em `docs/av2/`. A etapa R permanece como
+  proposta de avaliação da skill, separada do aceite técnico.
 
 ## Preparação — elaboração do planejamento
 
@@ -395,6 +395,50 @@ Data 11/11/2026. Branch `av2`. As mudanças locais da fase 4 foram incorporadas
 
 Fase concluída com persistência verificada no host e limitação Docker registrada.
 A fase 6 consolida README, evidências e material de apoio.
+
+## Fase 6 — README e evidências
+
+Data 11/11/2026. Branch `av2`, base `2dbf442`. Fase concluída.
+
+- README atualizado para o contrato categórico e a modalidade servidor de
+  modelos. O fluxo cobre instalação, startup, exemplos, carga, JSONL,
+  métricas, retenção e troubleshooting.
+- Uma cópia limpa dos arquivos de trabalho no Windows recebeu uma nova
+  `.venv` com `uv sync --frozen --offline` e Python 3.12.14, usando o cache
+  local. O startup usou BentoML 1.4.39 e porta de loopback temporária.
+- `curl.exe` verificou health e os quatro exemplos. O bloco PowerShell do
+  README foi executado com a porta de teste e o caminho do log preenchido.
+  Os dois lotes de 100 somaram 180 sucessos e 20 rejeições planejadas,
+  com zero 5xx e falhas de comunicação. Com os exemplos, o JSONL teve 204
+  registros, reconciliados com os contadores.
+- O [roteiro](demonstracao.md) reúne o cálculo de histograma, boxplot e
+  taxas com [resultados observados](evidence/phase-6/summary.json). A
+  planilha opcional foi omitida. As capturas brutas e o log completo
+  ficaram em `.bentoml/`; o repositório recebe apenas um resumo e duas
+  linhas sintéticas.
+- O Codex apoiou análise, implementação, testes, revisão e documentação.
+  O README declara essa participação e aponta para o histórico da AV1.
+
+## Fase 7 — auditoria e verificação final
+
+Data 11/11/2026. Branch `av2`, base `2dbf442` e alterações locais. Fase concluída.
+
+- Comparados os requisitos de logging e métricas do enunciado com o código,
+  os guias e a execução. Resolvidos os marcadores de merge, as instruções
+  antigas do README e a expectativa de sucesso para categoria desconhecida
+  no teste de monitoramento. O código do serviço foi preservado.
+- `uv run --frozen pytest -q -o faulthandler_timeout=40` registrou
+  **79 testes aprovados em 33,38 s**. `uv run --frozen ruff check .` e
+  `uv run --frozen python -m compileall -q src scripts tests` passaram.
+- O E2E preservou os 1.130 bytes do primeiro ciclo e acrescentou dois eventos
+  no segundo. O contador inicial de `/predict` foi zero em ambos os processos.
+- `git diff --check` passou, os links locais foram conferidos e o parser
+  PowerShell e `bash -n` aprovaram a sintaxe dos blocos do README. A
+  demonstração foi executada no Windows.
+- Parecer **READY** para o escopo técnico, com execução em Windows. A
+  verificação com Docker, a execução remota da CI do commit final e a
+  segunda revisão do grupo ficam para a equipe. [Parecer](review.md) ·
+  [Fluxo para o revisor](revisao-plano.md).
 
 ## Modelo para os próximos checkpoints
 

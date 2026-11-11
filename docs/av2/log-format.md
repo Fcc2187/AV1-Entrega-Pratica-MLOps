@@ -74,6 +74,8 @@ de linha e Unicode, preservando o valor quando decodificado com `json.loads`.
 `input_capture=complete` significa JSON objeto capturado por inteiro; não significa
 que passou pela validação do perfil. Pedidos 400 também podem ter esse valor.
 Interpretar `input_capture` junto com `outcome` e `status_code` nas análises.
+O contrato atual rejeita categorias fora das listas. O valor rejeitado pode
+constar no evento 400, sujeito aos limites de captura e sanitização.
 
 O limite é **8192 bytes por corpo**, tanto na cópia de entrada quanto na de saída.
 A cópia deixa de crescer ao atingir o limite; os bytes originais continuam para
@@ -91,7 +93,7 @@ rejeição HTTP: o contrato da API continua sendo validado pelo BentoML/Pydantic
 | Variável | Uso no contexto CareerPath e análise possível |
 | --- | --- |
 | `age`, `hours_per_week` | Caracterizar mudanças nos perfis recebidos; histogramas, boxplots e futura comparação numérica KS/PSI |
-| Escolaridade, vínculo, ocupação, estado civil | Frequências e PSI categórico, incluindo nulos e categorias desconhecidas |
+| Escolaridade, vínculo, ocupação, estado civil | Frequências e PSI categórico com as opções do contrato, incluindo nulos em vínculo e ocupação |
 | `probability_above_50k` | Distribuição do sinal socioeconômico devolvido; histograma, boxplot e futura comparação com probabilidades da referência |
 | `income_class_proxy` | Proporção das classes previstas |
 | `latency_ms`, `status_code`, `outcome` | Distribuição da duração e desfechos operacionais |

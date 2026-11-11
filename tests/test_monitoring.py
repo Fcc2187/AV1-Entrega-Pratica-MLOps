@@ -103,13 +103,25 @@ def test_rejections_are_logged_before_inference(client, inference_log, monkeypat
     assert "hidden@example.test" not in inference_log.read_text("utf-8")
 
 
-def test_nullable_and_unicode_unknown_categories_are_preserved(client, inference_log):
-    profile = {**PROFILE, "workclass": None, "occupation": "Operação\nTécnica"}
+def test_nullable_categories_are_preserved(client, inference_log):
+    profile = {**PROFILE, "workclass": None, "occupation": None}
     response = client.post("/predict", json=profile)
     assert response.status_code == 200
     [event] = events(inference_log)
     assert event["input"] == profile
     assert event["output"] == response.json()
+
+
+def test_rejected_unicode_category_is_preserved_in_jsonl(client, inference_log):
+    profile = {**PROFILE, "occupation": "Operação\nTécnica"}
+    response = client.post("/predict", json=profile)
+    assert response.status_code == 400
+    assert "occupation" in response.text and "Tech-support" in response.text
+    [event] = events(inference_log)
+    assert event["input"] == profile
+    assert event["status_code"] == 400
+    assert event["outcome"] == event["error_type"] == "client_error"
+    assert event["output"] is None
 
 
 def test_internal_error_does_not_leak_exception_or_fabricate_output(
