@@ -7,6 +7,7 @@ COPY --from=uv /uv /uvx /bin/
 WORKDIR /app
 
 ENV BENTOML_DO_NOT_TRACK=True \
+    CAREERPATH_LOG_PATH=/app/logs/inference.jsonl \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \

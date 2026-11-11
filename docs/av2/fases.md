@@ -59,8 +59,8 @@ Os caminhos abaixo são planejados. O estado executado de cada fase fica no chec
 | 1 | Verificar base, runtime e integração | Baseline atual e decisões confirmadas | Concluída |
 | 2 | Registrar entradas, saídas e falhas | JSONL append-only testado | Concluída |
 | 3 | Validar e interpretar `/metrics` | Endpoint real e guia de cálculos | Concluída |
-| 4 | Gerar carga reproduzível | Script e demonstração controlada | Pendente |
-| 5 | Integrar Docker, CI e reinício | Persistência e regressões verificadas | Pendente |
+| 4 | Gerar carga reproduzível | Script e demonstração controlada | Concluída |
+| 5 | Integrar Docker, CI e reinício | Persistência local verificada e integração configurada | Concluída com validação Docker pendente |
 | 6 | Documentar e coletar evidências | README e capturas reais | Pendente |
 | 7 | Auditar e encerrar | Matriz final e READY/NOT READY | Pendente |
 
@@ -175,18 +175,21 @@ amostra real e log vazio; ajuste de zero tráfego encontrado na revisão foi cor
 - `--scenario shifted` desloca somente idades e horas semanais, respeitando os limites do schema. `--invalid-every 0` desliga erros; com 10, cada décimo pedido recebe `age=-1`.
 - Resumo em stdout: enviados, 2xx, 4xx, 5xx e falhas de rede. Exit code 0 para resultados esperados; não zero para rede, 5xx ou resposta inesperada. Timeout por pedido: 10 s.
 
-- [ ] Criar testes que falham para determinismo por seed, limites de `Profile`, cenário deslocado, `count > 0`, intervalos inválidos e contabilização de respostas/rede com HTTP simulado.
-- [ ] Executar `uv run --frozen pytest -q tests/test_generate_load.py` e confirmar a falha esperada.
-- [ ] Implementar gerador e CLI com biblioteca padrão, sem banco, treinamento ou dependência de dados baixados. Não afirmar que o cenário sintético representa a população Adult.
-- [ ] Executar testes direcionados e Ruff e confirmar sucesso.
-- [ ] Com servidor real, coletar metrics antes/depois de 100 pedidos baseline e repetir 100 shifted; executar também uma carga curta sem erros.
-- [ ] Conferir deltas no JSONL: 90 sucessos e 10 rejeições por lote de 100 com configuração acima, se não houver falhas inesperadas. Não contar erros esperados como exemplos de falha do servidor.
-- [ ] Carregar as linhas com pandas já instalado e conferir tipos de idade, horas, probabilidade e latência, variação dos valores e exclusão de eventos inválidos das distribuições de features.
-- [ ] Registrar procedimento da referência Adult e da referência de probabilidades conforme o escopo, sem precisar executar KS/PSI ou baixar a base para gerar carga.
-- [ ] Registrar comandos, contagens reais e limitações no checkpoint.
+- [x] Testar determinismo, limites de `Profile`, deslocamento, argumentos e contabilização com HTTP simulado.
+- [x] Observar a falha inicial pela ausência do gerador e as falhas reproduzidas durante a revisão.
+- [x] Implementar gerador e CLI com biblioteca padrão, usando perfis sintéticos dos exemplos.
+- [x] Aprovar testes direcionados, suíte completa e Ruff.
+- [x] Capturar `/metrics` antes e depois de 100 pedidos baseline, 100 shifted e cinco pedidos válidos.
+- [x] Conciliar os contadores da CLI, do JSONL e de `/metrics`. Cada lote principal teve 90 sucessos e 10 rejeições planejadas.
+- [x] Conferir tipos e variação com pandas e excluir eventos inválidos das distribuições de features.
+- [x] Registrar a reconstrução da referência Adult e das probabilidades no [guia de carga](load.md).
+- [x] Registrar comandos, resultados e limitações no checkpoint.
 
 **Aceite:** professor consegue gerar tráfego variado e erros controlados; valores
 individuais de entrada e saída podem ser recuperados sem parsing de texto livre.
+
+Concluída em 11/11/2026. O servidor registrou 205 eventos reconciliados com as
+métricas e a CLI. A suíte final passou com 74 testes e Ruff aprovado.
 
 ## Fase 5 — integração, persistência e qualidade
 
@@ -194,19 +197,22 @@ individuais de entrada e saída podem ser recuperados sem parsing de texto livre
 **Consome:** logging, carga e métricas já funcionais. **Produz:** operação reproduzível
 no host e, quando disponível, container com logs graváveis e preservados por volume.
 
-- [ ] Ampliar E2E para passar caminho temporário de log ao subprocesso, gerar carga e reiniciar o serviço usando o mesmo arquivo; verificar bytes anteriores, novas linhas e resposta do modelo após reinício.
-- [ ] Observar contadores antes/depois do reinício e registrar a janela nova; não depender de valores globais exatos de outros endpoints.
-- [ ] Conferir `/app/logs` gravável para UID 10001, já preparado na fase 2 para o startup do logging, e definir o caminho coerente com o volume.
-- [ ] Documentar comando Docker com volume nomeado em `/app/logs`; testar remover/recriar container com o mesmo volume e confirmar append. Não apagar volumes do usuário.
-- [ ] Ajustar CI para pushes em `main` e `av2`, mantendo pull requests, permissões mínimas, versões fixadas, Ruff e pytest. CI de qualidade não precisa de artifact de dados do pipeline Garmin.
-- [ ] Ajustar receitas úteis do justfile, preservando o comando direto com uv para quem não tem just instalado.
-- [ ] Executar `uv run --frozen pytest -q`, `uv run --frozen ruff check .` e `uv run --frozen python -m compileall -q src scripts tests`.
-- [ ] Se Docker disponível, executar `docker build --tag careerpath-mlops:av2 .` e smoke test com volume, predict, metrics e reinício. Se indisponível, registrar explicitamente que Docker não foi validado.
-- [ ] Registrar resultados e checkpoint; não declarar CI remota aprovada sem observar a execução remota.
+- [x] Ampliar o E2E com dois ciclos no mesmo log temporário. Conferir o prefixo byte a byte, duas novas linhas por ciclo, IDs distintos e a previsão após reinício.
+- [x] Conferir a nova janela de contadores de `/predict` em ambos os ciclos.
+- [x] Conferir no Dockerfile o proprietário de `/app/logs` e definir `CAREERPATH_LOG_PATH` dentro do ponto de montagem.
+- [x] Documentar o volume nomeado e o teste de recriação no [guia Docker](docker.md).
+- [x] Configurar CI para pushes em `main` e `av2` e pull requests, com Ruff, pytest e compilação.
+- [x] Alinhar as receitas de build e execução e incluir compilação em `just check`.
+- [x] Executar suíte completa, Ruff e compilação de `src`, `scripts` e `tests`.
+- [x] Registrar a indisponibilidade do motor Docker e a validação de build e volume pendente.
+- [x] Registrar resultados locais e estado da CI no checkpoint.
 
 **Aceite:** testes existentes e novos passam; logging sobrevive ao reinício local;
 container tem estratégia documentada de escrita e persistência, com teste real ou
 limitação declarada. Nenhum dado gerado é versionado inadvertidamente.
+
+Concluída em 11/11/2026 com 74 testes aprovados. A persistência foi verificada
+no serviço local. A execução Docker e a CI remota aguardam verificação.
 
 ## Fase 6 — README, evidências e material de apoio
 

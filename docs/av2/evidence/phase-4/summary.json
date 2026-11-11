@@ -1,0 +1,161 @@
+{
+  "batches": [
+    {
+      "cli": {
+        "scenario": "baseline",
+        "seed": 42,
+        "invalid_every": 10,
+        "sent": 100,
+        "2xx": 90,
+        "4xx": 10,
+        "5xx": 0,
+        "other_status": 0,
+        "network_errors": 0,
+        "unexpected": 0
+      },
+      "prometheus_delta": {
+        "200": 90,
+        "400": 10,
+        "500": 0
+      },
+      "jsonl_events": 100,
+      "distribution_rows": 90,
+      "columns": {
+        "input.age": {
+          "dtype": "int64",
+          "distinct": 33,
+          "min": 22.0,
+          "max": 54.0,
+          "median": 37.0
+        },
+        "input.hours_per_week": {
+          "dtype": "int64",
+          "distinct": 20,
+          "min": 28.0,
+          "max": 48.0,
+          "median": 36.0
+        },
+        "output.probability_above_50k": {
+          "dtype": "float64",
+          "distinct": 88,
+          "min": 0.015310440353160443,
+          "max": 0.47611182662436763,
+          "median": 0.1281911202034395
+        },
+        "latency_ms": {
+          "dtype": "float64",
+          "distinct": 90,
+          "min": 7.59920000564307,
+          "max": 93.8968999980716,
+          "median": 10.203249999904074
+        }
+      }
+    },
+    {
+      "cli": {
+        "scenario": "shifted",
+        "seed": 42,
+        "invalid_every": 10,
+        "sent": 100,
+        "2xx": 90,
+        "4xx": 10,
+        "5xx": 0,
+        "other_status": 0,
+        "network_errors": 0,
+        "unexpected": 0
+      },
+      "prometheus_delta": {
+        "200": 90,
+        "400": 10,
+        "500": 0
+      },
+      "jsonl_events": 100,
+      "distribution_rows": 90,
+      "columns": {
+        "input.age": {
+          "dtype": "int64",
+          "distinct": 33,
+          "min": 34.0,
+          "max": 66.0,
+          "median": 49.0
+        },
+        "input.hours_per_week": {
+          "dtype": "int64",
+          "distinct": 20,
+          "min": 40.0,
+          "max": 60.0,
+          "median": 48.0
+        },
+        "output.probability_above_50k": {
+          "dtype": "float64",
+          "distinct": 88,
+          "min": 0.030780153600867232,
+          "max": 0.6498874703649481,
+          "median": 0.23096313343926164
+        },
+        "latency_ms": {
+          "dtype": "float64",
+          "distinct": 90,
+          "min": 7.8726000065216795,
+          "max": 19.292400000267662,
+          "median": 10.792900000524241
+        }
+      }
+    },
+    {
+      "cli": {
+        "scenario": "baseline",
+        "seed": 42,
+        "invalid_every": 0,
+        "sent": 5,
+        "2xx": 5,
+        "4xx": 0,
+        "5xx": 0,
+        "other_status": 0,
+        "network_errors": 0,
+        "unexpected": 0
+      },
+      "prometheus_delta": {
+        "200": 5,
+        "400": 0,
+        "500": 0
+      },
+      "jsonl_events": 5,
+      "distribution_rows": 5,
+      "columns": {
+        "input.age": {
+          "dtype": "int64",
+          "distinct": 5,
+          "min": 24.0,
+          "max": 39.0,
+          "median": 29.0
+        },
+        "input.hours_per_week": {
+          "dtype": "int64",
+          "distinct": 4,
+          "min": 28.0,
+          "max": 46.0,
+          "median": 31.0
+        },
+        "output.probability_above_50k": {
+          "dtype": "float64",
+          "distinct": 5,
+          "min": 0.017273059316338036,
+          "max": 0.19407729333903267,
+          "median": 0.02911659275429516
+        },
+        "latency_ms": {
+          "dtype": "float64",
+          "distinct": 5,
+          "min": 11.231700002099387,
+          "max": 20.235999996657483,
+          "median": 18.17349999328144
+        }
+      }
+    }
+  ],
+  "paired_input_shift": 12,
+  "categorical_fields_equal": true,
+  "total_requests": 205,
+  "server_stopped": true
+}

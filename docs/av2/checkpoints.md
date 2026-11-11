@@ -319,6 +319,69 @@ Estado: concluída. Base: `57396e5`, branch `av2`; árvore limpa ao iniciar.
 Fase 4 — geração de carga reproduzível e suficiência dos dados. Fases 4–7 continuam
 pendentes; nenhuma publicação, alteração remota ou commit foi realizado pelo agente.
 
+## Fase 4 — carga e suficiência dos dados
+
+Data 11/11/2026. Base `91610af` na branch `av2`. Fase concluída.
+
+- `scripts/generate_load.py` envia perfis sequencialmente para `/predict`. A seed
+  42 define a sequência de categorias, idades e jornadas. O cenário shifted
+  aplica +12 às duas variáveis numéricas. O parâmetro `--invalid-every` controla
+  a frequência das rejeições esperadas.
+- O teste inicial falhou pela ausência do gerador. A revisão também reproduziu
+  três URLs inválidas e uma linha de status HTTP malformada que interrompia o
+  lote. A CLI agora rejeita essas URLs e contabiliza falhas de protocolo.
+- A suíte final com `uv run --frozen pytest -q -o faulthandler_timeout=40` passou
+  com **74 testes em 22,94 s**. `uv run --frozen ruff check .` foi aprovado.
+- O servidor local recebeu `--count 100 --seed 42 --scenario baseline
+  --invalid-every 10`, depois os mesmos argumentos com `--scenario shifted`,
+  e por fim `--count 5 --seed 42 --scenario baseline --invalid-every 0`. Os
+  lotes principais registraram 90 respostas 200 e 10 respostas 400 cada. O
+  curto registrou cinco respostas 200. As 205 linhas concordaram com a CLI
+  e com os deltas de `/metrics`, com zero 5xx e zero falhas de comunicação.
+- Pandas confirmou tipos numéricos, variação nas quatro colunas e 90 linhas
+  válidas por cenário principal. O deslocamento de idade e jornada foi de 12
+  em cada par válido, com categorias idênticas.
+- Comandos e método de reconstrução da referência estão em [load.md](load.md).
+  O [resumo observado](evidence/phase-4/summary.json) foi salvo em `docs/`. Capturas
+  brutas e JSONL da execução local ficaram em `.bentoml/phase4-81wlloc7/`.
+  O servidor de teste foi encerrado e a porta liberada.
+- A receita `just load` delega à CLI. O binário `just` estava indisponível
+  neste ambiente. A validação HTTP usou diretamente o comando `uv run`.
+
+A fase 5 trata persistência, Docker e CI.
+
+## Fase 5 — integração, persistência e qualidade
+
+Data 11/11/2026. Branch `av2`. As mudanças locais da fase 4 foram incorporadas
+à validação.
+
+- No E2E, o primeiro processo escreveu dois eventos, para status 200 e 400.
+  O segundo abriu o mesmo arquivo com os 1.130 bytes anteriores intactos e
+  acrescentou outros dois eventos. A previsão coincidiu com a anterior,
+  o JSONL concordou com as respostas e os quatro IDs eram distintos.
+- O contador inicial de `/predict` foi zero nos dois processos. Cada janela
+  registrou um HTTP 200 e um 400. A captura local fica na pasta de testes
+  temporária em `.bentoml/phase5-048fdc63c8ff4287b2da75cfc31d16c3/`.
+- A suíte completa passou com **74 testes em 26,77 s**. Ruff e compilação
+  de `src`, `scripts` e `tests` foram aprovados.
+- O Dockerfile define `CAREERPATH_LOG_PATH=/app/logs/inference.jsonl` e mantém
+  a preparação do diretório com o proprietário correspondente ao UID 10001.
+  As receitas Docker usam a imagem `careerpath-mlops:av2` e um volume nomeado
+  montado em `/app/logs`. O [guia Docker](docker.md) descreve a verificação.
+- O cliente Docker estava instalado. Antes do startup, o pipe do motor Linux
+  estava indisponível. Depois, a consulta de versão retornou HTTP 500 e uma
+  nova tentativa excedeu 15 s. O WSL foi reportado como ausente. Build e
+  recriação com volume ficam pendentes para outro ambiente com Docker Linux.
+  O usuário orientou a usar apenas a validação no host neste PC.
+- O workflow Quality agora inclui pushes em `av2`, além de `main` e pull
+  requests. Mantém permissões de leitura e versões fixadas e inclui compilação.
+  A execução remota ainda precisa ser observada.
+- A receita `just check` inclui compilação. O executável `just` estava
+  indisponível, então as verificações locais usaram os comandos diretos do uv.
+
+Fase concluída com persistência verificada no host e limitação Docker registrada.
+A fase 6 consolida README, evidências e material de apoio.
+
 ## Modelo para os próximos checkpoints
 
 ```markdown

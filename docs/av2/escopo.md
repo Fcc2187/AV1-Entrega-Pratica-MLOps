@@ -1,7 +1,7 @@
 # AV2 — escopo e decisões propostas
 
 Data: 10/11/2026. Branch observada: `av2`.
-Status: fases 0 a 3 concluídas; logging e métricas validados; fase 4 pendente.
+Status atual — fases 0 a 5 concluídas. Validação Docker e execução da CI remota pendentes.
 
 ## 1. Objetivo
 
@@ -305,3 +305,19 @@ no segundo ciclo. O guia [metrics.md](metrics.md) reúne cálculos, retenção, 
 de quantis, boxplot pelo JSONL e capturas reais versionadas. A suíte completa passou
 com 59 testes; não houve mudança no código da aplicação nem nas dependências.
 O exemplo de log vazio foi corrigido e reexecutado após a revisão independente.
+
+## 15. Atualização após a fase 4
+
+Em 11/11/2026, os lotes baseline e shifted geraram 90 sucessos e 10 rejeições
+programadas cada. Um lote curto acrescentou cinco sucessos. A CLI, o JSONL e
+`/metrics` concordaram nos 205 pedidos. Os perfis válidos tiveram variação nas
+quatro colunas numéricas verificadas. O [guia de carga](load.md) reúne os
+comandos, a seleção dos eventos para análise e a reconstrução da referência Adult.
+
+## 16. Atualização após a fase 5
+
+Em 11/11/2026, o E2E confirmou a preservação de 1.130 bytes de log após o
+reinício local, com dois eventos novos e a mesma previsão para o mesmo perfil.
+Os contadores de `/predict` começaram em zero no novo processo. A CI foi
+configurada para pushes em `main` e `av2` e pull requests. O [guia Docker](docker.md)
+descreve o volume e a verificação pendente no motor Linux.

@@ -172,12 +172,16 @@ def test_service_predicts_after_real_restart(tmp_path: Path) -> None:
 
     inference_log = tmp_path / "inference.jsonl"
     measurements = []
+    previous_log = b""
+    previous_prediction = None
+    request_ids: set[str] = set()
     for attempt in range(2):
         log_path = tmp_path / f"service-{attempt}.log"
         with log_path.open("w", encoding="utf-8") as log:
             process = start_service(port, log, inference_log)
             try:
                 health = wait_for_health(process, port, log, log_path)
+                assert inference_log.read_bytes() == previous_log
                 before_text, before = request_metrics(port)
                 # Each fresh process starts a new window, including after restart.
                 assert metric_value(before, "bentoml_service_request_total") == 0
@@ -193,7 +197,24 @@ def test_service_predicts_after_real_restart(tmp_path: Path) -> None:
         assert prediction["income_class_proxy"] in {"<=50K", ">50K"}
         assert 0 <= prediction["probability_above_50k"] <= 1
         assert prediction["model_version"] == "adult-income-v1"
+        if previous_prediction is not None:
+            assert prediction == previous_prediction
+        previous_prediction = prediction
         assert invalid_status == 400
+
+        current_log = inference_log.read_bytes()
+        assert current_log.startswith(previous_log)
+        appended = current_log[len(previous_log) :].splitlines()
+        assert len(appended) == 2
+        accepted, rejected = (json.loads(line) for line in appended)
+        assert (accepted["status_code"], rejected["status_code"]) == (200, 400)
+        assert accepted["input"] == profile
+        assert accepted["output"] == prediction
+        assert rejected["input"]["age"] == -1
+        assert rejected["output"] is None
+        new_ids = {accepted["request_id"], rejected["request_id"]}
+        assert len(new_ids) == 2 and request_ids.isdisjoint(new_ids)
+        request_ids.update(new_ids)
 
         counter = "bentoml_service_request_total"
         duration = "bentoml_service_request_duration_seconds"
@@ -254,6 +275,8 @@ def test_service_predicts_after_real_restart(tmp_path: Path) -> None:
             {
                 "cycle": attempt,
                 "initial_predict_count": 0,
+                "preserved_log_bytes": len(previous_log),
+                "appended_events": len(appended),
                 "counter_deltas": counter_deltas,
                 "count": 2,
                 "duration_sum_seconds": duration_sum,
@@ -270,6 +293,7 @@ def test_service_predicts_after_real_restart(tmp_path: Path) -> None:
                 ],
             }
         )
+        previous_log = current_log
     (tmp_path / "metrics-summary.json").write_text(
         json.dumps(measurements, indent=2, allow_nan=False),
         encoding="utf-8",
