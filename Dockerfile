@@ -20,6 +20,7 @@ COPY models ./models
 RUN uv sync --frozen --no-dev
 
 RUN useradd --create-home --uid 10001 appuser
+RUN mkdir -p /app/logs && chown appuser:appuser /app/logs
 USER appuser
 
 EXPOSE 3000
