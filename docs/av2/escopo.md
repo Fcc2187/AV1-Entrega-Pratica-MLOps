@@ -13,10 +13,12 @@ A modalidade aplicável é a seção 1 do enunciado, para servidores de modelos.
 O workflow de qualidade existente não transforma o projeto no pipeline Garmin da
 seção 2. Artifacts de execução desse pipeline não são requisitos desta modalidade.
 
-## 2. Fontes e estado encontrado
+## 2. Fontes e estado encontrado na fase 0 (histórico)
 
-- Enunciado da AV2 fornecido pelo usuário em `Texto colado.txt`, lido integralmente
-  nesta sessão. Os requisitos aplicáveis estão consolidados na matriz abaixo.
+- Enunciado da AV2 fornecido pelo usuário; na revisão de 11/11/2026, a fonte
+  disponível é o texto da conversa. `Texto colado.txt`, citado na preparação
+  original, não está presente no checkout e não é necessário para executar o plano.
+  Os requisitos aplicáveis estão consolidados na matriz abaixo.
 - Código em `src/careerpath/`, exemplos, testes, Dockerfile, justfile e CI.
 - Contexto de negócio em `docs/phase-0-design.md` e no documento de entendimento
   de negócio da AV1. O classificador é um componente socioeconômico auxiliar;
@@ -44,8 +46,9 @@ seção 2. Artifacts de execução desse pipeline não são requisitos desta mod
 | Texto sobre latência, histograma, boxplot, taxa de erros e retenção | Parte dos 10 de métricas | Guia com cálculos, unidades, limites e dados reais |
 | Professor consegue gerar carga e ver o rastro usando o README | Transversal | Instalação, startup, carga, leitura do log e consulta às métricas reproduzíveis |
 
-O trecho aplicável soma 60 pontos. Não inferir outros critérios ou os 40 pontos
-restantes da AV2. Prazo, tag e duração de apresentação da AV2 não foram informados;
+O enunciado informa que esta parte vale 60% da nota da AV2 e apresenta 50 pontos
+de logging e 10 de métricas. Não inferir critérios das demais partes da AV2.
+Prazo, tag e duração de apresentação da AV2 não foram informados;
 não reutilizar automaticamente datas, tag `sr1` ou regras de apresentação da AV1.
 
 O enunciado recomenda uma planilha e permite análises demonstrativas. Não exige
